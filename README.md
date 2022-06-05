@@ -13,7 +13,7 @@ This CLI is expected to work with the file structure of the challenges generated
 
 Create a new alias to avoid writing the complete command.
 
-> :warning: If you do not create the alias you will have to use `judge0-uploader` instead of `j0` in each command.
+> **Warning** If you do not create the alias you will have to use `judge0-uploader` instead of `j0` in each command.
 
 ```bash
 # OPTIONAL - to avoid writing judge0-uploader every time.
@@ -43,7 +43,7 @@ j0 upload path-to-your-challenge/
 
 As the multipart submission cannot be waited directly in the API we have to be polling the Judge0 API for the execution result. To know the result of your current challenge execute and wait until the execution finishes use:
 
-> :info: A submission is considered in execution if the status is `In Queue` or `Processing`.
+> **Note** A submission is considered in execution if the status is `In Queue` or `Processing`.
 
 ```bash
 # To get your current submission status
