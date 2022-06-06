@@ -44,7 +44,7 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.judge0-uploader.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.config/.judge0-uploader.yaml)")
 	rootCmd.PersistentFlags().BoolVar(&verbose, "verbose", false, "verbose output")
 
 	// Cobra also supports local flags, which will only run
