@@ -7,7 +7,6 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"path"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -45,11 +44,15 @@ func init() {
 	// will be global for your application.
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.config/.judge0-uploader.yaml)")
-	rootCmd.PersistentFlags().BoolVar(&verbose, "verbose", false, "verbose output")
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
+
+	fmt.Println("judge0-uploader is running:", viper.IsSet("judge0_auth_token"))
+	fmt.Println("judge0-uploader is running:", viper.GetString("judge0_auth_token"))
+	fmt.Println("judge0-uploader is running:", viper.GetString("judge0_auth_token"))
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -63,7 +66,7 @@ func initConfig() {
 		cobra.CheckErr(err)
 
 		// Search config in home directory with name ".judge0-uploader" (without extension).
-		viper.AddConfigPath(path.Join(home, ".config"))
+		viper.AddConfigPath(home)
 		viper.SetConfigType("yaml")
 		viper.SetConfigName(".judge0-uploader")
 	}

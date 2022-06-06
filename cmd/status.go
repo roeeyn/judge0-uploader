@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 NAME HERE <EMAIL ADDRESS>
+Copyright © 2022 Rodrigo Medina rodrigo.medina.neri@gmail.com
 
 */
 package cmd
@@ -23,6 +23,7 @@ status as it is.
 A execution is considered finished when the status is neither "In Queue" or "Processing".`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("status called")
+		fmt.Println("verbose:", verbose)
 	},
 }
 
