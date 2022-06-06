@@ -7,23 +7,22 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 var cfgFile string
+var verbose bool
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "judge0-uploader",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
+	Short: "Utility to upload local files to Judge0",
+	Long: `This CLI utility is used to upload local files to Judge0.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+This is useful to load local coding challenges to Judge0, execute them and get the results.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
@@ -46,6 +45,7 @@ func init() {
 	// will be global for your application.
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.judge0-uploader.yaml)")
+	rootCmd.PersistentFlags().BoolVar(&verbose, "verbose", false, "verbose output")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -63,7 +63,7 @@ func initConfig() {
 		cobra.CheckErr(err)
 
 		// Search config in home directory with name ".judge0-uploader" (without extension).
-		viper.AddConfigPath(home)
+		viper.AddConfigPath(path.Join(home, ".config"))
 		viper.SetConfigType("yaml")
 		viper.SetConfigName(".judge0-uploader")
 	}

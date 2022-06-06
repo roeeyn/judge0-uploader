@@ -7,6 +7,10 @@ As there are too much submissions, we wanted a CLI that helped us to try the loc
 
 This CLI is expected to work with the file structure of the challenges generated with the [challenge-generator](https://github.com/roeeyn/challenge-generator) project. If you would like to support any other structure, please create a new issue.
 
+## Configuration
+
+You need to setup the token via config file or flag
+
 ## Usage
 
 ### 0. Alias
