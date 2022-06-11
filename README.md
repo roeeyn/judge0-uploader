@@ -10,6 +10,29 @@ This CLI is expected to work with the file structure of the challenges generated
 ## Configuration
 
 You need to setup the token via config file or flag
+You can set your token in different ways:
+
+### ENV variable
+
+```bash
+export JUDGE0_AUTH_TOKEN='YOUR_TOKEN'
+```
+
+### YAML Config File
+
+The default config file location is `~` or `$HOME`, and the expected name is `.judge0-uploader.yaml`, so the expected file complete path should be `~/.judge0-uploader.yaml`.
+
+You can create it with the following command.
+
+```bash
+echo 'judge0_auth_token: "YOUR_TOKEN"' > ~/.judge0-uploader.yaml
+```
+
+You can also specify a different path for your file configuration by writing:
+
+```bash
+... --config YOUR_CONFIG_FILE_PATH
+```
 
 ## Usage
 

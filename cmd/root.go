@@ -43,12 +43,8 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.config/.judge0-uploader.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.judge0-uploader.yaml)")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
-
-	fmt.Println("judge0-uploader is running:", viper.IsSet("judge0_auth_token"))
-	fmt.Println("judge0-uploader is running:", viper.GetString("judge0_auth_token"))
-	fmt.Println("judge0-uploader is running:", viper.GetString("judge0_auth_token"))
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -75,6 +71,17 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
+		configFileUsed := viper.ConfigFileUsed()
+		isTokenSet := viper.IsSet("judge0_auth_tokenx")
+
+		fmt.Println("Using config file:", configFileUsed)
+		fmt.Println("Is Token Set?", isTokenSet)
+
+		if !isTokenSet {
+			fmt.Fprintln(os.Stderr, "A Judge0 Auth Token is needed to use this utility.")
+			fmt.Fprintln(os.Stderr, "Searched for token in:", configFileUsed)
+			os.Exit(1)
+		}
+
 	}
 }
