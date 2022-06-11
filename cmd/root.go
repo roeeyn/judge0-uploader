@@ -72,7 +72,7 @@ func initConfig() {
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		configFileUsed := viper.ConfigFileUsed()
-		isTokenSet := viper.IsSet("judge0_auth_tokenx")
+		isTokenSet := viper.IsSet("judge0_auth_token")
 
 		fmt.Println("Using config file:", configFileUsed)
 		fmt.Println("Is Token Set?", isTokenSet)
