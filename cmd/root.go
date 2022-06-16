@@ -5,7 +5,7 @@ Copyright © 2022 Rodrigo Medina rodrigo.medina.neri@gmail.com
 package cmd
 
 import (
-	"fmt"
+	"log"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -15,6 +15,13 @@ import (
 var cfgFile string
 var verbose bool
 
+var (
+	DebugLogger   *log.Logger
+	ErrorLogger   *log.Logger
+	InfoLogger    *log.Logger
+	WarningLogger *log.Logger
+)
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "judge0-uploader",
@@ -22,7 +29,7 @@ var rootCmd = &cobra.Command{
 	Long: `This CLI utility is used to upload local files to Judge0.
 
 This is useful to load local coding challenges to Judge0, execute them and get the results.`,
-	// Uncomment the following line if your bare application
+	// Uncomment th following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
 }
@@ -49,6 +56,11 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+
+	DebugLogger = log.New(os.Stdout, "DEBUG: ", log.Ldate|log.Ltime|log.Lshortfile)
+	ErrorLogger = log.New(os.Stdout, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
+	InfoLogger = log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
+	WarningLogger = log.New(os.Stdout, "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -70,18 +82,17 @@ func initConfig() {
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		configFileUsed := viper.ConfigFileUsed()
-		isTokenSet := viper.IsSet("judge0_auth_token")
+	err := viper.ReadInConfig()
+	configFileUsed := viper.ConfigFileUsed()
+	isTokenSet := viper.IsSet("judge0_auth_token")
 
-		fmt.Println("Using config file:", configFileUsed)
-		fmt.Println("Is Token Set?", isTokenSet)
-
-		if !isTokenSet {
-			fmt.Fprintln(os.Stderr, "A Judge0 Auth Token is needed to use this utility.")
-			fmt.Fprintln(os.Stderr, "Searched for token in:", configFileUsed)
-			os.Exit(1)
-		}
-
+	if err == nil || isTokenSet {
+		InfoLogger.Println("Using config file:", configFileUsed)
+		InfoLogger.Println("Is Token Set?", isTokenSet)
+	} else {
+		ErrorLogger.Printf("No valid config file found in: %s", viper.ConfigFileUsed())
+		ErrorLogger.Println("A Judge0 Auth Token is needed to use this utility.")
+		DebugLogger.Printf("Searched for token in: %s", configFileUsed)
+		os.Exit(1)
 	}
 }
