@@ -5,9 +5,11 @@ import (
 )
 
 type J0SubmitterFiles struct {
-	Run           string
-	Index         string
-	Test          string
+	Run   string
+	Index string
+	Test  string
+	// We're leaving it without camelcase to maintain consistency
+	// with the expected challenge file.
 	Testframework string
 }
 
