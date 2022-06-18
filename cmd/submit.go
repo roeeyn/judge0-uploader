@@ -12,7 +12,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/roeeyn/judge0-uploader/pkg/j0_submitter"
+	submitter "github.com/roeeyn/judge0-uploader/pkg/j0_submitter"
 
 	"github.com/spf13/cobra"
 )
@@ -49,7 +49,7 @@ func isExpectedFile(fullFileName string) (isExpected bool, fileName string) {
 	return false, ""
 }
 
-func getChallengeFiles(absBasePath string) (j0SubmitterFiles *j0_submitter.J0SubmitterFiles, err error) {
+func getChallengeFiles(absBasePath string) (j0SubmitterFiles *submitter.J0SubmitterFiles, err error) {
 	// Verify that the basePath contains expected files
 	files, err := ioutil.ReadDir(absBasePath)
 	if err != nil {
@@ -57,7 +57,7 @@ func getChallengeFiles(absBasePath string) (j0SubmitterFiles *j0_submitter.J0Sub
 		return
 	}
 
-	submitterFiles := j0_submitter.NewJ0SubmitterFiles()
+	j0SubmitterFiles = submitter.NewJ0SubmitterFiles()
 
 	for _, file := range files {
 		// We do not support nested folders
@@ -69,7 +69,7 @@ func getChallengeFiles(absBasePath string) (j0SubmitterFiles *j0_submitter.J0Sub
 		InfoLogger.Println("Found file: ", absFilePath)
 
 		if isExpected, fileNameKey := isExpectedFile(absFilePath); isExpected {
-			error := submitterFiles.AddFile(fileNameKey, absFilePath)
+			error := j0SubmitterFiles.AddFile(fileNameKey, absFilePath)
 			if error != nil {
 				err = fmt.Errorf(fmt.Sprintf("Error adding file property: %s", error.Error()))
 				return
@@ -77,13 +77,13 @@ func getChallengeFiles(absBasePath string) (j0SubmitterFiles *j0_submitter.J0Sub
 		}
 	}
 
-	if submitterFiles.ContainsEmptyFileProperties() {
+	if j0SubmitterFiles.ContainsEmptyFileProperties() {
 		err = fmt.Errorf(fmt.Sprintf("Not all needed files are present. Expected files are: %s", expectedChallengeFiles))
-		ErrorLogger.Println("Current Files:", submitterFiles)
+		ErrorLogger.Println("Current Files:", j0SubmitterFiles)
 		return
 	}
 
-	InfoLogger.Println("Challenge Files:", submitterFiles)
+	InfoLogger.Println("Challenge Files:", j0SubmitterFiles)
 
 	return
 }

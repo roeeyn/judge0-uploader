@@ -5,26 +5,26 @@ import (
 )
 
 type J0SubmitterFiles struct {
-	run           string
-	index         string
-	test          string
-	testframework string
+	Run           string
+	Index         string
+	Test          string
+	Testframework string
 }
 
 type J0Submitter struct {
-	files J0SubmitterFiles
+	Files *J0SubmitterFiles
 }
 
 func (j0SubmitterFiles *J0SubmitterFiles) AddFile(fileKey string, fileAbsPath string) error {
 	switch fileKey {
 	case "run":
-		j0SubmitterFiles.run = fileAbsPath
+		j0SubmitterFiles.Run = fileAbsPath
 	case "index":
-		j0SubmitterFiles.index = fileAbsPath
+		j0SubmitterFiles.Index = fileAbsPath
 	case "test":
-		j0SubmitterFiles.test = fileAbsPath
+		j0SubmitterFiles.Test = fileAbsPath
 	case "testframework":
-		j0SubmitterFiles.testframework = fileAbsPath
+		j0SubmitterFiles.Testframework = fileAbsPath
 	default:
 		return fmt.Errorf("Unknown file key: %s", fileKey)
 	}
@@ -34,7 +34,7 @@ func (j0SubmitterFiles *J0SubmitterFiles) AddFile(fileKey string, fileAbsPath st
 func (j0SubmitterFiles *J0SubmitterFiles) ContainsEmptyFileProperties() bool {
 	// Iterate over the struct fields and check if any of them is empty
 	// because at this point every file is needed.
-	if j0SubmitterFiles.run == "" || j0SubmitterFiles.index == "" || j0SubmitterFiles.test == "" || j0SubmitterFiles.testframework == "" {
+	if j0SubmitterFiles.Run == "" || j0SubmitterFiles.Index == "" || j0SubmitterFiles.Test == "" || j0SubmitterFiles.Testframework == "" {
 		return true
 	}
 
@@ -45,6 +45,6 @@ func NewJ0SubmitterFiles() (j0SubmitterFiles *J0SubmitterFiles) {
 	return &J0SubmitterFiles{}
 }
 
-func NewJ0Submitter(files J0SubmitterFiles) (j0Submitter *J0Submitter) {
-	return &J0Submitter{files: files}
+func NewJ0Submitter(files *J0SubmitterFiles) (j0Submitter *J0Submitter) {
+	return &J0Submitter{Files: files}
 }
