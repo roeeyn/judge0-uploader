@@ -5,7 +5,6 @@ import (
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gstruct"
 
-	"github.com/bxcodec/faker/v3"
 	submitter "github.com/roeeyn/judge0-uploader/pkg/j0_submitter"
 )
 
@@ -15,17 +14,7 @@ var _ = Describe("Judge0 Submitter Tests", func() {
 
 		It("should return a new submitter", func() {
 			// Arrange
-			runName := faker.FirstName()
-			indexName := faker.FirstName()
-			testName := faker.FirstName()
-			testframeworkName := faker.FirstName()
-
-			files := submitter.J0SubmitterFiles{
-				Run:           runName,
-				Index:         indexName,
-				Test:          testName,
-				Testframework: testframeworkName,
-			}
+			files := submitter.J0SubmitterFiles{}
 
 			// Act
 			submitter := submitter.NewJ0Submitter(&files)
