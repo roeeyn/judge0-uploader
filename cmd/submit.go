@@ -12,6 +12,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/roeeyn/judge0-uploader/pkg/j0_submitter"
+
 	"github.com/spf13/cobra"
 )
 
@@ -25,7 +27,7 @@ var submitCmd = &cobra.Command{
 
 We're expecting that the directory contains the following files:
 - run (bash script)
-- main*
+- index*
 - test*
 - testframework*
 
@@ -34,20 +36,20 @@ We're expecting that the directory contains the following files:
 	Args: cobra.ExactArgs(1),
 }
 
-func isExpectedFile(fullFileName string) bool {
+func isExpectedFile(fullFileName string) (isExpected bool, fileName string) {
 	// Remove extension from the file
-	fileName := strings.TrimSuffix(fullFileName, filepath.Ext(fullFileName))
+	fileName = strings.TrimSuffix(fullFileName, filepath.Ext(fullFileName))
 
 	for _, expectedFile := range expectedChallengeFiles {
 		if fileName == expectedFile {
-			return true
+			return true, expectedFile
 		}
 	}
 
-	return false
+	return false, ""
 }
 
-func getChallengeFiles(absBasePath string) (challengeFiles []string, err error) {
+func getChallengeFiles(absBasePath string) (j0SubmitterFiles *j0_submitter.J0SubmitterFiles, err error) {
 	// Verify that the basePath contains expected files
 	files, err := ioutil.ReadDir(absBasePath)
 	if err != nil {
@@ -55,32 +57,33 @@ func getChallengeFiles(absBasePath string) (challengeFiles []string, err error) 
 		return
 	}
 
-	// Slice := Data, length, capacity
-	challengeFiles = make([]string, 0, len(expectedChallengeFiles))
+	submitterFiles := j0_submitter.NewJ0SubmitterFiles()
 
 	for _, file := range files {
+		// We do not support nested folders
 		if file.IsDir() {
 			continue
 		}
 
-		fileName := file.Name()
-
 		absFilePath := path.Join(absBasePath, file.Name())
 		InfoLogger.Println("Found file: ", absFilePath)
 
-		if isExpectedFile(fileName) {
-			// TODO: Update this to a map with key the name without extension and the value as the abs path
-			// so we can zip and manipulate easily the files
-			challengeFiles = append(challengeFiles, absFilePath)
+		if isExpected, fileNameKey := isExpectedFile(absFilePath); isExpected {
+			error := submitterFiles.AddFile(fileNameKey, absFilePath)
+			if error != nil {
+				err = fmt.Errorf(fmt.Sprintf("Error adding file property: %s", error.Error()))
+				return
+			}
 		}
 	}
 
-	if len(challengeFiles) != len(expectedChallengeFiles) {
-		err = fmt.Errorf(fmt.Sprintf("Expected challenge files: %s", expectedChallengeFiles))
+	if submitterFiles.ContainsEmptyFileProperties() {
+		err = fmt.Errorf(fmt.Sprintf("Not all needed files are present. Expected files are: %s", expectedChallengeFiles))
+		ErrorLogger.Println("Current Files:", submitterFiles)
 		return
 	}
 
-	InfoLogger.Println("Challenge Files:", challengeFiles)
+	InfoLogger.Println("Challenge Files:", submitterFiles)
 
 	return
 }
