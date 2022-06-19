@@ -1,12 +1,12 @@
 .SILENT:
 .PHONY: test-submitter coverage-submitter run-submitter
 
-test-submitter:
+submitter-test:
 	ginkgo pkg/j0_submitter/
 
-coverage-submitter:
+submitter-coverage:
 	ginkgo -coverprofile=coverage.out pkg/j0_submitter/
 	go tool cover -html coverage.out
 
-run-submitter:
+submitter-run:
 	go run main.go submit sample_challenge
