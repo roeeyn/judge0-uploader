@@ -6,8 +6,6 @@ import (
 	"os"
 	"path"
 
-	"fmt"
-
 	"github.com/bxcodec/faker/v3"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -181,10 +179,9 @@ var _ = Describe("Judge0 Submitter Tests", func() {
 			j0submitter := submitter.NewJ0Submitter(baseTestChallengeDir, DebugLogger, ErrorLogger, InfoLogger, WarningLogger)
 			absFilePath, err := submitter.GetAbsolutePath(baseTestChallengeDir)
 			Expect(err).To(BeNil())
-			j0submitter.AbsChallengePath = absFilePath
-			fmt.Println(j0submitter.AbsChallengePath)
 
 			// Act
+			j0submitter.AbsChallengePath = absFilePath
 			expectedError := j0submitter.GetChallengeFiles()
 
 			// Assert
@@ -193,6 +190,31 @@ var _ = Describe("Judge0 Submitter Tests", func() {
 			Expect(j0submitter.Files.Index).To(Equal(path.Join(absFilePath, "index"+fileExtension)))
 			Expect(j0submitter.Files.Test).To(Equal(path.Join(absFilePath, "test"+fileExtension)))
 			Expect(j0submitter.Files.Testframework).To(Equal(path.Join(absFilePath, "testframework"+fileExtension)))
+		})
+
+		It("should return an error if an expected file is missing", func() {
+			// Arrange
+			DebugLogger := log.New(os.Stdout, "DEBUG: ", log.Ldate|log.Ltime|log.Lshortfile)
+			ErrorLogger := log.New(os.Stdout, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
+			InfoLogger := log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
+			WarningLogger := log.New(os.Stdout, "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
+
+			j0submitter := submitter.NewJ0Submitter(baseTestChallengeDir, DebugLogger, ErrorLogger, InfoLogger, WarningLogger)
+			absFilePath, err := submitter.GetAbsolutePath(baseTestChallengeDir)
+			Expect(err).To(BeNil())
+
+			// Remove an expected file to trigger the error
+			removeErr := os.Remove(path.Join(absFilePath, "index"+fileExtension))
+			Expect(removeErr).To(BeNil())
+
+			// Act
+			j0submitter.AbsChallengePath = absFilePath
+			expectedError := j0submitter.GetChallengeFiles()
+
+			// Assert
+			Expect(expectedError).ToNot(BeNil())
+			Expect(expectedError.Error()).To(Equal("Not all needed files are present. Expected files are: [index run test testframework]"))
+
 		})
 
 		It("should return an error if the path is not valid", func() {
@@ -205,6 +227,7 @@ var _ = Describe("Judge0 Submitter Tests", func() {
 			expectedError := j0submitter.GetChallengeFiles()
 
 			// Assert
+			Expect(expectedError).ToNot(BeNil())
 			Expect(expectedError.Error()).To(Equal("Error reading files inside folder: open /invalid/path: no such file or directory"))
 
 		})
