@@ -1,10 +1,12 @@
 package j0_submitter_test
 
 import (
+	"log"
+	"os"
+
 	"github.com/bxcodec/faker/v3"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	. "github.com/onsi/gomega/gstruct"
 
 	submitter "github.com/roeeyn/judge0-uploader/pkg/j0_submitter"
 )
@@ -15,14 +17,22 @@ var _ = Describe("Judge0 Submitter Struct Tests", func() {
 
 		It("should return a new submitter", func() {
 			// Arrange
-			files := submitter.J0SubmitterFiles{}
+			DebugLogger := log.New(os.Stdout, "DEBUG: ", log.Ldate|log.Ltime|log.Lshortfile)
+			ErrorLogger := log.New(os.Stdout, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
+			InfoLogger := log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
+			WarningLogger := log.New(os.Stdout, "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
+			ChallengeName := faker.FirstName()
 
 			// Act
-			submitter := submitter.NewJ0Submitter(&files)
+			submitter := submitter.NewJ0Submitter(ChallengeName, DebugLogger, ErrorLogger, InfoLogger, WarningLogger)
 
 			// Assert
 			Expect(submitter).ToNot(BeNil())
-			Expect(submitter.Files).To(PointTo(Equal(files)))
+			Expect(submitter.ChallengePath).To(Equal(ChallengeName))
+			Expect(submitter.DebugLogger).To(Equal(DebugLogger))
+			Expect(submitter.ErrorLogger).To(Equal(ErrorLogger))
+			Expect(submitter.InfoLogger).To(Equal(InfoLogger))
+			Expect(submitter.WarningLogger).To(Equal(WarningLogger))
 		})
 
 	})

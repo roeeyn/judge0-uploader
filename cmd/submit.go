@@ -5,19 +5,9 @@ Copyright © 2022 Rodrigo Medina rodrigo.medina.neri@gmail.com
 package cmd
 
 import (
-	"fmt"
-	"io/ioutil"
-	"os"
-	"path"
-	"path/filepath"
-	"strings"
-
 	submitter "github.com/roeeyn/judge0-uploader/pkg/j0_submitter"
-
 	"github.com/spf13/cobra"
 )
-
-var expectedChallengeFiles = [4]string{"index", "run", "test", "testframework"}
 
 // submitCmd represents the submit command
 var submitCmd = &cobra.Command{
@@ -36,95 +26,17 @@ We're expecting that the directory contains the following files:
 	Args: cobra.ExactArgs(1),
 }
 
-func isExpectedFile(fullFileName string) (isExpected bool, fileName string) {
-	// Remove extension from the file
-	fileName = strings.TrimSuffix(fullFileName, filepath.Ext(fullFileName))
-
-	for _, expectedFile := range expectedChallengeFiles {
-		if fileName == expectedFile {
-			return true, expectedFile
-		}
-	}
-
-	return false, ""
-}
-
-func getChallengeFiles(absBasePath string) (j0SubmitterFiles *submitter.J0SubmitterFiles, err error) {
-	// Verify that the basePath contains expected files
-	files, err := ioutil.ReadDir(absBasePath)
-	if err != nil {
-		err = fmt.Errorf(fmt.Sprintf("Error reading files inside folder: %s", err.Error()))
-		return
-	}
-
-	j0SubmitterFiles = submitter.NewJ0SubmitterFiles()
-
-	for _, file := range files {
-		// We do not support nested folders
-		if file.IsDir() {
-			continue
-		}
-
-		absFilePath := path.Join(absBasePath, file.Name())
-		InfoLogger.Println("Found file: ", absFilePath)
-
-		if isExpected, fileNameKey := isExpectedFile(absFilePath); isExpected {
-			error := j0SubmitterFiles.AddFile(fileNameKey, absFilePath)
-			if error != nil {
-				err = fmt.Errorf(fmt.Sprintf("Error adding file property: %s", error.Error()))
-				return
-			}
-		}
-	}
-
-	if j0SubmitterFiles.ContainsEmptyFileProperties() {
-		err = fmt.Errorf(fmt.Sprintf("Not all needed files are present. Expected files are: %s", expectedChallengeFiles))
-		ErrorLogger.Println("Current Files:", j0SubmitterFiles)
-		return
-	}
-
-	InfoLogger.Println("Challenge Files:", j0SubmitterFiles)
-
-	return
-}
-
-func getAbsolutePath(basePath string) (absPath string, err error) {
-	// Validate if the basePath exists
-	_, err = os.Stat(basePath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			err = fmt.Errorf(fmt.Sprintf("Base folder: '%s' does not exist", basePath))
-		}
-		return
-	}
-
-	// Get the absolute path
-	absPath, err = filepath.Abs(basePath)
-	if err != nil {
-		err = fmt.Errorf(fmt.Sprintf("Error getting absolute basePath: %s", err.Error()))
-		return
-	}
-
-	InfoLogger.Println("Challenge Absolute Path:", absPath)
-	return
-}
-
 func run(cmd *cobra.Command, args []string) {
 	InfoLogger.Println("submit command called")
 	InfoLogger.Println("Challenge Relative Path:", args[0])
 
-	challengePath := args[0]
-	absPath, err := getAbsolutePath(challengePath)
+	j0Submitter := submitter.NewJ0Submitter(args[0], DebugLogger, ErrorLogger, InfoLogger, WarningLogger)
+
+	err := j0Submitter.Run()
+
 	if err != nil {
 		ErrorLogger.Fatal(err)
 	}
-
-	challengeFiles, err := getChallengeFiles(absPath)
-	if err != nil {
-		ErrorLogger.Fatal(err)
-	}
-
-	InfoLogger.Println("Challenge Files [REMOVE THIS]:", challengeFiles)
 
 }
 
