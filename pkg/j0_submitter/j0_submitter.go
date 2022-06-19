@@ -54,7 +54,7 @@ func (j0SubmitterFiles *J0SubmitterFiles) ContainsEmptyFileProperties() bool {
 
 func (j0Submitter *J0Submitter) Run() (err error) {
 	challengePath := j0Submitter.ChallengePath
-	absPath, err := getAbsolutePath(challengePath)
+	absPath, err := GetAbsolutePath(challengePath)
 	if err != nil {
 		j0Submitter.ErrorLogger.Fatal(err)
 	}
@@ -104,7 +104,7 @@ func (j0Submitter *J0Submitter) getChallengeFiles() (err error) {
 		absFilePath := path.Join(absBasePath, file.Name())
 		j0Submitter.InfoLogger.Println("Found file: ", absFilePath)
 
-		if isExpected, fileNameKey := isExpectedFile(file.Name()); isExpected {
+		if isExpected, fileNameKey := IsExpectedFile(file.Name()); isExpected {
 			error := j0Submitter.Files.AddFile(fileNameKey, absFilePath)
 			j0Submitter.InfoLogger.Println("Added file: ", absFilePath)
 			if error != nil {

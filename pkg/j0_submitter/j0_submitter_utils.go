@@ -9,7 +9,7 @@ import (
 
 var expectedChallengeFiles = [4]string{"index", "run", "test", "testframework"}
 
-func isExpectedFile(fullFileName string) (isExpected bool, fileName string) {
+func IsExpectedFile(fullFileName string) (isExpected bool, fileName string) {
 	// Remove extension from the file
 	fileName = strings.TrimSuffix(fullFileName, filepath.Ext(fullFileName))
 
@@ -22,7 +22,7 @@ func isExpectedFile(fullFileName string) (isExpected bool, fileName string) {
 	return false, ""
 }
 
-func getAbsolutePath(basePath string) (absPath string, err error) {
+func GetAbsolutePath(basePath string) (absPath string, err error) {
 	// Validate if the basePath exists
 	_, err = os.Stat(basePath)
 	if err != nil {
