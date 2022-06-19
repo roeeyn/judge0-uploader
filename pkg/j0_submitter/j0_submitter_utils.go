@@ -7,13 +7,13 @@ import (
 	"strings"
 )
 
-var expectedChallengeFiles = [4]string{"index", "run", "test", "testframework"}
+var ExpectedChallengeFiles = [4]string{"index", "run", "test", "testframework"}
 
 func IsExpectedFile(fullFileName string) (isExpected bool, fileName string) {
 	// Remove extension from the file
 	fileName = strings.TrimSuffix(fullFileName, filepath.Ext(fullFileName))
 
-	for _, expectedFile := range expectedChallengeFiles {
+	for _, expectedFile := range ExpectedChallengeFiles {
 		if fileName == expectedFile {
 			return true, expectedFile
 		}

@@ -62,7 +62,7 @@ func (j0Submitter *J0Submitter) Run() (err error) {
 	j0Submitter.InfoLogger.Println("Absolute path:", absPath)
 	j0Submitter.AbsChallengePath = absPath
 
-	err = j0Submitter.getChallengeFiles()
+	err = j0Submitter.GetChallengeFiles()
 	if err != nil {
 		j0Submitter.ErrorLogger.Fatal(err)
 	}
@@ -86,7 +86,7 @@ func NewJ0Submitter(challengePath string, debugLogger *log.Logger, errorLogger *
 	return
 }
 
-func (j0Submitter *J0Submitter) getChallengeFiles() (err error) {
+func (j0Submitter *J0Submitter) GetChallengeFiles() (err error) {
 	// Verify that the basePath contains expected files
 	absBasePath := j0Submitter.AbsChallengePath
 	files, err := ioutil.ReadDir(absBasePath)
@@ -115,7 +115,7 @@ func (j0Submitter *J0Submitter) getChallengeFiles() (err error) {
 	}
 
 	if j0Submitter.Files.ContainsEmptyFileProperties() {
-		err = fmt.Errorf(fmt.Sprintf("Not all needed files are present. Expected files are: %s", expectedChallengeFiles))
+		err = fmt.Errorf(fmt.Sprintf("Not all needed files are present. Expected files are: %s", ExpectedChallengeFiles))
 		j0Submitter.ErrorLogger.Println("Current Files:", j0Submitter.Files)
 		return
 	}
