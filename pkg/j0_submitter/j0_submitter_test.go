@@ -2,7 +2,6 @@ package j0_submitter_test
 
 import (
 	"io/ioutil"
-	"log"
 	"os"
 	"path"
 
@@ -41,22 +40,14 @@ var _ = Describe("Judge0 Submitter Struct Tests", func() {
 
 		It("should return a new submitter", func() {
 			// Arrange
-			DebugLogger := log.New(os.Stdout, "DEBUG: ", log.Ldate|log.Ltime|log.Lshortfile)
-			ErrorLogger := log.New(os.Stdout, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
-			InfoLogger := log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
-			WarningLogger := log.New(os.Stdout, "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
 			ChallengeName := faker.FirstName()
 
 			// Act
-			submitter := submitter.NewJ0Submitter(ChallengeName, DebugLogger, ErrorLogger, InfoLogger, WarningLogger)
+			submitter := submitter.NewJ0Submitter(ChallengeName)
 
 			// Assert
 			Expect(submitter).ToNot(BeNil())
 			Expect(submitter.ChallengePath).To(Equal(ChallengeName))
-			Expect(submitter.DebugLogger).To(Equal(DebugLogger))
-			Expect(submitter.ErrorLogger).To(Equal(ErrorLogger))
-			Expect(submitter.InfoLogger).To(Equal(InfoLogger))
-			Expect(submitter.WarningLogger).To(Equal(WarningLogger))
 		})
 
 	})
@@ -172,11 +163,7 @@ var _ = Describe("Judge0 Submitter Tests", func() {
 	Context("When getting the files of the submission", func() {
 		It("should get the correct absolute path of the files", func() {
 			// Arrange
-			DebugLogger := log.New(os.Stdout, "DEBUG: ", log.Ldate|log.Ltime|log.Lshortfile)
-			ErrorLogger := log.New(os.Stdout, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
-			InfoLogger := log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
-			WarningLogger := log.New(os.Stdout, "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
-			j0submitter := submitter.NewJ0Submitter(baseTestChallengeDir, DebugLogger, ErrorLogger, InfoLogger, WarningLogger)
+			j0submitter := submitter.NewJ0Submitter(baseTestChallengeDir)
 			absFilePath, err := submitter.GetAbsolutePath(baseTestChallengeDir)
 			Expect(err).To(BeNil())
 
@@ -194,12 +181,7 @@ var _ = Describe("Judge0 Submitter Tests", func() {
 
 		It("should return an error if an expected file is missing", func() {
 			// Arrange
-			DebugLogger := log.New(os.Stdout, "DEBUG: ", log.Ldate|log.Ltime|log.Lshortfile)
-			ErrorLogger := log.New(os.Stdout, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
-			InfoLogger := log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
-			WarningLogger := log.New(os.Stdout, "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
-
-			j0submitter := submitter.NewJ0Submitter(baseTestChallengeDir, DebugLogger, ErrorLogger, InfoLogger, WarningLogger)
+			j0submitter := submitter.NewJ0Submitter(baseTestChallengeDir)
 			absFilePath, err := submitter.GetAbsolutePath(baseTestChallengeDir)
 			Expect(err).To(BeNil())
 
@@ -222,7 +204,7 @@ var _ = Describe("Judge0 Submitter Tests", func() {
 			// Arrange
 			invalid_path := "/invalid/path"
 			// Act
-			j0submitter := submitter.NewJ0Submitter(invalid_path, nil, nil, nil, nil)
+			j0submitter := submitter.NewJ0Submitter(invalid_path)
 			j0submitter.AbsChallengePath = invalid_path
 			expectedError := j0submitter.GetChallengeFiles()
 

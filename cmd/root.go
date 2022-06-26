@@ -5,7 +5,7 @@ Copyright © 2022 Rodrigo Medina rodrigo.medina.neri@gmail.com
 package cmd
 
 import (
-	"log"
+	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -14,13 +14,6 @@ import (
 
 var cfgFile string
 var verbose bool
-
-var (
-	DebugLogger   *log.Logger
-	ErrorLogger   *log.Logger
-	InfoLogger    *log.Logger
-	WarningLogger *log.Logger
-)
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -56,11 +49,6 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
-	DebugLogger = log.New(os.Stdout, "DEBUG: ", log.Ldate|log.Ltime|log.Lshortfile)
-	ErrorLogger = log.New(os.Stdout, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
-	InfoLogger = log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
-	WarningLogger = log.New(os.Stdout, "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -87,12 +75,12 @@ func initConfig() {
 	isTokenSet := viper.IsSet("judge0_auth_token")
 
 	if err == nil || isTokenSet {
-		InfoLogger.Println("Using config file:", configFileUsed)
-		InfoLogger.Println("Is Token Set?", isTokenSet)
+		fmt.Println("Using config file:", configFileUsed)
+		fmt.Println("Is Token Set?", isTokenSet)
 	} else {
-		ErrorLogger.Printf("No valid config file found in: %s", viper.ConfigFileUsed())
-		ErrorLogger.Println("A Judge0 Auth Token is needed to use this utility.")
-		DebugLogger.Printf("Searched for token in: %s", configFileUsed)
+		fmt.Printf("No valid config file found in: %s", viper.ConfigFileUsed())
+		fmt.Println("A Judge0 Auth Token is needed to use this utility.")
+		fmt.Printf("Searched for token in: %s", configFileUsed)
 		os.Exit(1)
 	}
 }

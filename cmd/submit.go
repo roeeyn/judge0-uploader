@@ -5,6 +5,9 @@ Copyright © 2022 Rodrigo Medina rodrigo.medina.neri@gmail.com
 package cmd
 
 import (
+	"fmt"
+	"os"
+
 	submitter "github.com/roeeyn/judge0-uploader/pkg/j0_submitter"
 	"github.com/spf13/cobra"
 )
@@ -27,15 +30,16 @@ We're expecting that the directory contains the following files:
 }
 
 func run(cmd *cobra.Command, args []string) {
-	InfoLogger.Println("submit command called")
-	InfoLogger.Println("Challenge Relative Path:", args[0])
+	fmt.Println("submit command called")
+	fmt.Println("Challenge Relative Path:", args[0])
 
-	j0Submitter := submitter.NewJ0Submitter(args[0], DebugLogger, ErrorLogger, InfoLogger, WarningLogger)
+	j0Submitter := submitter.NewJ0Submitter(args[0])
 
 	err := j0Submitter.Run()
 
 	if err != nil {
-		ErrorLogger.Fatal(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 }
