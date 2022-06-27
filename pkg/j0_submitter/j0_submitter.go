@@ -10,6 +10,7 @@ import (
 )
 
 const ZIP_FILE_NAME = "upload.judge0.zip"
+const MAIN_FILE_NAME = "upload.judge0"
 
 type J0SubmitterFiles struct {
 	Run   string
@@ -165,7 +166,7 @@ func (j0Submitter *J0Submitter) ZipFiles() (err error) {
 
 	}
 
-	mainWriter, err := zipWriter.Create("upload.judge0")
+	mainWriter, err := zipWriter.Create(MAIN_FILE_NAME)
 	if err != nil {
 		return
 	}
