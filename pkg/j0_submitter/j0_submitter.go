@@ -1,11 +1,16 @@
 package j0_submitter
 
 import (
+	"archive/zip"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"path"
+	"path/filepath"
 )
+
+const ZIP_FILE_NAME = "upload.judge0.zip"
 
 type J0SubmitterFiles struct {
 	Run   string
@@ -65,6 +70,12 @@ func (j0Submitter *J0Submitter) Run() (err error) {
 		os.Exit(1)
 	}
 
+	err = j0Submitter.ZipFiles()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
 	return
 }
 
@@ -115,5 +126,54 @@ func (j0Submitter *J0Submitter) GetChallengeFiles() (err error) {
 	}
 
 	fmt.Println("Challenge Files:", j0Submitter.Files)
+	return
+}
+
+func (j0Submitter *J0Submitter) ZipFiles() (err error) {
+	fmt.Println("creating zip archive...")
+	archive, err := os.Create(ZIP_FILE_NAME)
+	if err != nil {
+		return
+	}
+	defer archive.Close()
+
+	zipWriter := zip.NewWriter(archive)
+
+	filesMap := map[string]string{
+		"run":           j0Submitter.Files.Run,
+		"index":         j0Submitter.Files.Index,
+		"testframework": j0Submitter.Files.Testframework,
+		"test":          j0Submitter.Files.Test,
+	}
+
+	fmt.Println(filesMap)
+
+	for fileName, filePath := range filesMap {
+		fileExtension := filepath.Ext(filePath)
+		fullFileName := fileName + fileExtension
+
+		fmt.Println("Opening: ", fullFileName)
+		openedFile, openErr := os.Open(filePath)
+		if openErr != nil {
+			return openErr
+		}
+		defer openedFile.Close()
+
+		fmt.Printf("Writing '%s' to archive...\n", fullFileName)
+
+		writer, createErr := zipWriter.Create(fullFileName)
+		if createErr != nil {
+			return createErr
+		}
+
+		if _, err = io.Copy(writer, openedFile); err != nil {
+			return
+		}
+
+	}
+
+	fmt.Println("closing zip archive...")
+	zipWriter.Close()
+
 	return
 }
