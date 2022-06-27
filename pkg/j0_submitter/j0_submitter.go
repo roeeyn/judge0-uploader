@@ -3,7 +3,6 @@ package j0_submitter
 import (
 	"archive/zip"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"os"
 	"path"
@@ -140,7 +139,6 @@ func (j0Submitter *J0Submitter) ZipFiles() (err error) {
 	zipWriter := zip.NewWriter(archive)
 
 	filesMap := map[string]string{
-		"run":           j0Submitter.Files.Run,
 		"index":         j0Submitter.Files.Index,
 		"testframework": j0Submitter.Files.Testframework,
 		"test":          j0Submitter.Files.Test,
@@ -148,28 +146,48 @@ func (j0Submitter *J0Submitter) ZipFiles() (err error) {
 
 	fmt.Println(filesMap)
 
+	mainContent := ""
+
 	for fileName, filePath := range filesMap {
 		fileExtension := filepath.Ext(filePath)
 		fullFileName := fileName + fileExtension
 
 		fmt.Println("Opening: ", fullFileName)
-		openedFile, openErr := os.Open(filePath)
+
+		content, openErr := ioutil.ReadFile(filePath)
 		if openErr != nil {
 			return openErr
 		}
-		defer openedFile.Close()
 
-		fmt.Printf("Writing '%s' to archive...\n", fullFileName)
+		fmt.Printf("Appending '%s' to archive...\n", fullFileName)
 
-		writer, createErr := zipWriter.Create(fullFileName)
-		if createErr != nil {
-			return createErr
-		}
+		mainContent = mainContent + string(content) + "\n"
 
-		if _, err = io.Copy(writer, openedFile); err != nil {
-			return
-		}
+	}
 
+	mainWriter, err := zipWriter.Create("upload.judge0")
+	if err != nil {
+		return
+	}
+
+	_, err = mainWriter.Write([]byte(mainContent))
+	if err != nil {
+		return
+	}
+
+	runContent, err := ioutil.ReadFile(j0Submitter.Files.Run)
+	if err != nil {
+		return
+	}
+
+	runWriter, err := zipWriter.Create("run")
+	if err != nil {
+		return
+	}
+
+	_, err = runWriter.Write([]byte(runContent))
+	if err != nil {
+		return
 	}
 
 	fmt.Println("closing zip archive...")
