@@ -1,7 +1,10 @@
 package j0_submitter
 
 import (
+	"bufio"
+	"encoding/base64"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -20,6 +23,27 @@ func IsExpectedFile(fullFileName string) (isExpected bool, fileName string) {
 	}
 
 	return false, ""
+}
+
+func B64ZipFile() (encodedFile string, err error) {
+	// Open file on disk.
+	f, err := os.Open(ZIP_FILE_NAME)
+	if err != nil {
+		err = fmt.Errorf("Error opening zip file %s: %s", ZIP_FILE_NAME, err.Error())
+		return
+	}
+
+	// Read entire JPG into byte slice.
+	reader := bufio.NewReader(f)
+	content, err := ioutil.ReadAll(reader)
+	if err != nil {
+		err = fmt.Errorf("Error reading zip file %s: %s", ZIP_FILE_NAME, err.Error())
+		return
+	}
+
+	// Encode as base64.
+	encodedFile = base64.StdEncoding.EncodeToString(content)
+	return
 }
 
 func GetAbsolutePath(basePath string) (absPath string, err error) {

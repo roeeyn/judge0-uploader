@@ -76,6 +76,14 @@ func (j0Submitter *J0Submitter) Run() (err error) {
 		os.Exit(1)
 	}
 
+	encodedFile, err := B64ZipFile()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	fmt.Println("Encoded file:", encodedFile)
+
 	return
 }
 
