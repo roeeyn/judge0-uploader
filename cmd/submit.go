@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/spf13/viper"
+
 	submitter "github.com/roeeyn/judge0-uploader/pkg/j0_submitter"
 	"github.com/spf13/cobra"
 )
@@ -33,7 +35,9 @@ func run(cmd *cobra.Command, args []string) {
 	fmt.Println("submit command called")
 	fmt.Println("Challenge Relative Path:", args[0])
 
-	j0Submitter := submitter.NewJ0Submitter(args[0])
+	j0AuthToken := viper.GetString("judge0_auth_token")
+	isVerbose := viper.GetBool("verbose")
+	j0Submitter := submitter.NewJ0Submitter(args[0], j0AuthToken, isVerbose)
 
 	err := j0Submitter.Run()
 

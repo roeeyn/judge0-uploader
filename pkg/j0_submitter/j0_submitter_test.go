@@ -41,13 +41,15 @@ var _ = Describe("Judge0 Submitter Struct Tests", func() {
 		It("should return a new submitter", func() {
 			// Arrange
 			ChallengeName := faker.FirstName()
+			fakeToken := faker.Word()
 
 			// Act
-			submitter := submitter.NewJ0Submitter(ChallengeName)
+			submitter := submitter.NewJ0Submitter(ChallengeName, fakeToken, true)
 
 			// Assert
 			Expect(submitter).ToNot(BeNil())
 			Expect(submitter.ChallengePath).To(Equal(ChallengeName))
+			Expect(submitter.AuthToken).To(Equal(fakeToken))
 		})
 
 	})
@@ -163,7 +165,7 @@ var _ = Describe("Judge0 Submitter Tests", func() {
 	Context("When getting the files of the submission", func() {
 		It("should get the correct absolute path of the files", func() {
 			// Arrange
-			j0submitter := submitter.NewJ0Submitter(baseTestChallengeDir)
+			j0submitter := submitter.NewJ0Submitter(baseTestChallengeDir, "", true)
 			absFilePath, err := submitter.GetAbsolutePath(baseTestChallengeDir)
 			Expect(err).To(BeNil())
 
@@ -181,7 +183,7 @@ var _ = Describe("Judge0 Submitter Tests", func() {
 
 		It("should return an error if an expected file is missing", func() {
 			// Arrange
-			j0submitter := submitter.NewJ0Submitter(baseTestChallengeDir)
+			j0submitter := submitter.NewJ0Submitter(baseTestChallengeDir, "", true)
 			absFilePath, err := submitter.GetAbsolutePath(baseTestChallengeDir)
 			Expect(err).To(BeNil())
 
@@ -204,7 +206,7 @@ var _ = Describe("Judge0 Submitter Tests", func() {
 			// Arrange
 			invalid_path := "/invalid/path"
 			// Act
-			j0submitter := submitter.NewJ0Submitter(invalid_path)
+			j0submitter := submitter.NewJ0Submitter(invalid_path, "", true)
 			j0submitter.AbsChallengePath = invalid_path
 			expectedError := j0submitter.GetChallengeFiles()
 

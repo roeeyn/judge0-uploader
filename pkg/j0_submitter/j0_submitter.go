@@ -23,8 +23,11 @@ type J0SubmitterFiles struct {
 
 type J0Submitter struct {
 	Files            *J0SubmitterFiles
+	AuthToken        string
 	ChallengePath    string
 	AbsChallengePath string
+	IsVerbose        bool
+	EncodedZipFile   string
 }
 
 func (j0SubmitterFiles *J0SubmitterFiles) AddFile(fileKey string, fileAbsPath string) error {
@@ -57,8 +60,7 @@ func (j0Submitter *J0Submitter) Run() (err error) {
 	challengePath := j0Submitter.ChallengePath
 	absPath, err := GetAbsolutePath(challengePath)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return
 	}
 
 	fmt.Println("Absolute path:", absPath)
@@ -66,23 +68,21 @@ func (j0Submitter *J0Submitter) Run() (err error) {
 
 	err = j0Submitter.GetChallengeFiles()
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return
 	}
 
 	err = j0Submitter.ZipFiles()
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return
 	}
 
 	encodedFile, err := B64ZipFile()
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return
 	}
 
 	fmt.Println("Encoded file:", encodedFile)
+	j0Submitter.EncodedZipFile = encodedFile
 
 	return
 }
@@ -91,10 +91,12 @@ func NewJ0SubmitterFiles() (j0SubmitterFiles *J0SubmitterFiles) {
 	return &J0SubmitterFiles{}
 }
 
-func NewJ0Submitter(challengePath string) (j0Submitter *J0Submitter) {
+func NewJ0Submitter(challengePath string, authToken string, isVerbose bool) (j0Submitter *J0Submitter) {
 	j0Submitter = &J0Submitter{
 		Files:         NewJ0SubmitterFiles(),
 		ChallengePath: challengePath,
+		AuthToken:     authToken,
+		IsVerbose:     isVerbose,
 	}
 	return
 }
