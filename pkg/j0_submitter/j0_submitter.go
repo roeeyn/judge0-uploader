@@ -2,8 +2,12 @@ package j0_submitter
 
 import (
 	"archive/zip"
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/http"
+	"net/http/httputil"
 	"os"
 	"path"
 	"path/filepath"
@@ -28,6 +32,10 @@ type J0Submitter struct {
 	AbsChallengePath string
 	IsVerbose        bool
 	EncodedZipFile   string
+}
+
+type Submission struct {
+	SubmissionId string `json:"token"`
 }
 
 func (j0SubmitterFiles *J0SubmitterFiles) AddFile(fileKey string, fileAbsPath string) error {
@@ -56,7 +64,7 @@ func (j0SubmitterFiles *J0SubmitterFiles) ContainsEmptyFileProperties() bool {
 	return false
 }
 
-func (j0Submitter *J0Submitter) Run() (err error) {
+func (j0Submitter *J0Submitter) Run() (submissionId string, err error) {
 	challengePath := j0Submitter.ChallengePath
 	absPath, err := GetAbsolutePath(challengePath)
 	if err != nil {
@@ -81,9 +89,10 @@ func (j0Submitter *J0Submitter) Run() (err error) {
 		return
 	}
 
-	fmt.Println("Encoded file:", encodedFile)
+	fmt.Println("Encoded file successfully")
 	j0Submitter.EncodedZipFile = encodedFile
 
+	submissionId, err = j0Submitter.SubmitEncodedFile()
 	return
 }
 
@@ -205,4 +214,63 @@ func (j0Submitter *J0Submitter) ZipFiles() (err error) {
 	zipWriter.Close()
 
 	return
+}
+
+func (j0Submitter J0Submitter) SubmitEncodedFile() (submissionId string, err error) {
+
+	values := map[string]string{"language_id": "89", "additional_files": j0Submitter.EncodedZipFile}
+	json_data, err := json.Marshal(values)
+
+	if err != nil {
+		err = fmt.Errorf(fmt.Sprintf("Error marshalling request data json: %s", err.Error()))
+		return
+	}
+
+	url := "https://judge.hackademy.mx/submissions?wait=false"
+
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(json_data))
+	if err != nil {
+		err = fmt.Errorf(fmt.Sprintf("Error creating the POST request: %s", err.Error()))
+		return
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Auth-Token", j0Submitter.AuthToken)
+
+	reqDump, err := httputil.DumpRequestOut(req, true)
+	if err != nil {
+		err = fmt.Errorf(fmt.Sprintf("Error dumping request: %s", err.Error()))
+		return
+	}
+
+	fmt.Printf("REQUEST:\n%s\n", string(reqDump))
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		err = fmt.Errorf(fmt.Sprintf("Error sending the POST request: %s", err.Error()))
+		return
+	}
+
+	fmt.Printf("RESPONSE status: %s\n", resp.Status)
+
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		err = fmt.Errorf(fmt.Sprintf("Error reading response body: %s", err.Error()))
+		return
+	}
+
+	fmt.Printf("Request sent successfully: %s\n", string(body))
+
+	var submission Submission
+	err = json.Unmarshal(body, &submission)
+	if err != nil {
+		err = fmt.Errorf(fmt.Sprintf("Error unmarshalling response body: %s", err.Error()))
+		return
+	}
+
+	fmt.Printf("Obtained Submission ID: %s\n", submission.SubmissionId)
+
+	return submission.SubmissionId, nil
 }

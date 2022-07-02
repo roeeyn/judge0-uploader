@@ -39,13 +39,14 @@ func run(cmd *cobra.Command, args []string) {
 	isVerbose := viper.GetBool("verbose")
 	j0Submitter := submitter.NewJ0Submitter(args[0], j0AuthToken, isVerbose)
 
-	err := j0Submitter.Run()
+	submissionId, err := j0Submitter.Run()
 
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
+	fmt.Println("Result Submission ID:", submissionId)
 }
 
 func init() {
