@@ -135,6 +135,8 @@ func (j0Submitter *J0Submitter) GetChallengeFiles() (err error) {
 				err = fmt.Errorf(fmt.Sprintf("Error adding file property: %s", error.Error()))
 				return
 			}
+		} else {
+			fmt.Println("Ignored file: ", absFilePath)
 		}
 	}
 
