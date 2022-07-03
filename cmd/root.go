@@ -74,14 +74,15 @@ func initConfig() {
 	err := viper.ReadInConfig()
 	configFileUsed := viper.ConfigFileUsed()
 	isTokenSet := viper.IsSet("judge0_auth_token")
-	isVerbose := viper.GetBool("verbose")
+
+	logger.IsVerbose = verbose
 
 	if err == nil || isTokenSet {
-		logger.LogInfo(isVerbose, fmt.Sprintf("Using config file: %s", configFileUsed))
-		logger.LogInfo(isVerbose, fmt.Sprintf("Is Token Set?: %t", isTokenSet))
+		logger.LogInfo(fmt.Sprintf("Using config file: %s", configFileUsed))
+		logger.LogInfo(fmt.Sprintf("Is Token Set?: %t", isTokenSet))
 	} else {
-		logger.LogError(isVerbose, fmt.Errorf("Searched for token in: %s", configFileUsed))
-		logger.LogError(isVerbose, fmt.Errorf("No valid config file found in: %s", viper.ConfigFileUsed()))
+		logger.LogError(fmt.Errorf("Searched for token in: %s", configFileUsed))
+		logger.LogError(fmt.Errorf("No valid config file found in: %s", viper.ConfigFileUsed()))
 		logger.LogFatal(fmt.Errorf("A Judge0 Auth Token is needed to use this utility."))
 		os.Exit(1)
 	}

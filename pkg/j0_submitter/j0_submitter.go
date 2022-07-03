@@ -32,7 +32,6 @@ type J0Submitter struct {
 	AuthToken        string
 	ChallengePath    string
 	AbsChallengePath string
-	IsVerbose        bool
 	EncodedZipFile   string
 }
 
@@ -73,7 +72,7 @@ func (j0Submitter *J0Submitter) Run() (submissionId string, err error) {
 		return
 	}
 
-	logger.LogInfo(j0Submitter.IsVerbose, fmt.Sprintf("Absolute path: %s", absPath))
+	logger.LogInfo(fmt.Sprintf("Absolute path: %s", absPath))
 	j0Submitter.AbsChallengePath = absPath
 
 	err = j0Submitter.GetChallengeFiles()
@@ -91,7 +90,7 @@ func (j0Submitter *J0Submitter) Run() (submissionId string, err error) {
 		return
 	}
 
-	logger.LogInfo(j0Submitter.IsVerbose, "Encoded file successfully")
+	logger.LogInfo("Encoded file successfully")
 	j0Submitter.EncodedZipFile = encodedFile
 
 	submissionId, err = j0Submitter.SubmitEncodedFile()
@@ -102,12 +101,11 @@ func NewJ0SubmitterFiles() (j0SubmitterFiles *J0SubmitterFiles) {
 	return &J0SubmitterFiles{}
 }
 
-func NewJ0Submitter(challengePath string, authToken string, isVerbose bool) (j0Submitter *J0Submitter) {
+func NewJ0Submitter(challengePath string, authToken string) (j0Submitter *J0Submitter) {
 	j0Submitter = &J0Submitter{
 		Files:         NewJ0SubmitterFiles(),
 		ChallengePath: challengePath,
 		AuthToken:     authToken,
-		IsVerbose:     isVerbose,
 	}
 	return
 }
@@ -128,17 +126,17 @@ func (j0Submitter *J0Submitter) GetChallengeFiles() (err error) {
 		}
 
 		absFilePath := path.Join(absBasePath, file.Name())
-		logger.LogInfo(j0Submitter.IsVerbose, fmt.Sprintf("Found file: %s", absFilePath))
+		logger.LogInfo(fmt.Sprintf("Found file: %s", absFilePath))
 
 		if isExpected, fileNameKey := IsExpectedFile(file.Name()); isExpected {
 			error := j0Submitter.Files.AddFile(fileNameKey, absFilePath)
-			logger.LogInfo(j0Submitter.IsVerbose, fmt.Sprintf("ADDED file: %s", absFilePath))
+			logger.LogInfo(fmt.Sprintf("ADDED file: %s", absFilePath))
 			if error != nil {
 				err = fmt.Errorf("Error adding file property: %s", error.Error())
 				return
 			}
 		} else {
-			logger.LogInfo(j0Submitter.IsVerbose, fmt.Sprintf("IGNORED file: %s", absFilePath))
+			logger.LogInfo(fmt.Sprintf("IGNORED file: %s", absFilePath))
 		}
 	}
 
@@ -147,12 +145,12 @@ func (j0Submitter *J0Submitter) GetChallengeFiles() (err error) {
 		return
 	}
 
-	logger.LogInfo(j0Submitter.IsVerbose, fmt.Sprintf("Challenge Files: %s", j0Submitter.Files))
+	logger.LogInfo(fmt.Sprintf("Challenge Files: %s", j0Submitter.Files))
 	return
 }
 
 func (j0Submitter *J0Submitter) ZipFiles() (err error) {
-	logger.LogInfo(j0Submitter.IsVerbose, "Creating zip archive...")
+	logger.LogInfo("Creating zip archive...")
 	archive, err := os.Create(ZIP_FILE_NAME)
 	if err != nil {
 		return
@@ -167,7 +165,7 @@ func (j0Submitter *J0Submitter) ZipFiles() (err error) {
 		"test":          j0Submitter.Files.Test,
 	}
 
-	logger.LogInfo(j0Submitter.IsVerbose, fmt.Sprintf("Files map: %s", filesMap))
+	logger.LogInfo(fmt.Sprintf("Files map: %s", filesMap))
 
 	mainContent := ""
 
@@ -175,14 +173,14 @@ func (j0Submitter *J0Submitter) ZipFiles() (err error) {
 		fileExtension := filepath.Ext(filePath)
 		fullFileName := fileName + fileExtension
 
-		logger.LogInfo(j0Submitter.IsVerbose, fmt.Sprintf("Opening: %s", fullFileName))
+		logger.LogInfo(fmt.Sprintf("Opening: %s", fullFileName))
 
 		content, openErr := ioutil.ReadFile(filePath)
 		if openErr != nil {
 			return openErr
 		}
 
-		logger.LogInfo(j0Submitter.IsVerbose, fmt.Sprintf("Appending '%s' to archive...", fullFileName))
+		logger.LogInfo(fmt.Sprintf("Appending '%s' to archive...", fullFileName))
 
 		mainContent = mainContent + string(content) + "\n"
 
@@ -213,7 +211,7 @@ func (j0Submitter *J0Submitter) ZipFiles() (err error) {
 		return
 	}
 
-	logger.LogInfo(j0Submitter.IsVerbose, "Closing zip archive...")
+	logger.LogInfo("Closing zip archive...")
 	zipWriter.Close()
 
 	return
@@ -246,7 +244,7 @@ func (j0Submitter J0Submitter) SubmitEncodedFile() (submissionId string, err err
 		return
 	}
 
-	logger.LogInfo(j0Submitter.IsVerbose, fmt.Sprintf("REQUEST:\n%s", string(reqDump)))
+	logger.LogInfo(fmt.Sprintf("REQUEST:\n%s", string(reqDump)))
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -254,7 +252,7 @@ func (j0Submitter J0Submitter) SubmitEncodedFile() (submissionId string, err err
 		return
 	}
 
-	logger.LogInfo(j0Submitter.IsVerbose, fmt.Sprintf("RESPONSE status: %s", resp.Status))
+	logger.LogInfo(fmt.Sprintf("RESPONSE status: %s", resp.Status))
 
 	defer resp.Body.Close()
 
@@ -264,7 +262,7 @@ func (j0Submitter J0Submitter) SubmitEncodedFile() (submissionId string, err err
 		return
 	}
 
-	logger.LogInfo(j0Submitter.IsVerbose, fmt.Sprintf("Request sent successfully:\n %s", string(body)))
+	logger.LogInfo(fmt.Sprintf("Request sent successfully:\n %s", string(body)))
 
 	var submission Submission
 	err = json.Unmarshal(body, &submission)
@@ -273,7 +271,7 @@ func (j0Submitter J0Submitter) SubmitEncodedFile() (submissionId string, err err
 		return
 	}
 
-	logger.LogInfo(j0Submitter.IsVerbose, fmt.Sprintf("Obtained Submission ID: %s", submission.SubmissionId))
+	logger.LogInfo(fmt.Sprintf("Obtained Submission ID: %s", submission.SubmissionId))
 
 	return submission.SubmissionId, nil
 }

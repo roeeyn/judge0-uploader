@@ -33,18 +33,17 @@ We're expecting that the directory contains the following files:
 
 func run(cmd *cobra.Command, args []string) {
 	j0AuthToken := viper.GetString("judge0_auth_token")
-	isVerbose := viper.GetBool("verbose")
-	j0Submitter := submitter.NewJ0Submitter(args[0], j0AuthToken, isVerbose)
+	j0Submitter := submitter.NewJ0Submitter(args[0], j0AuthToken)
 
-	logger.LogInfo(isVerbose, "Submit command called")
-	logger.LogInfo(isVerbose, fmt.Sprintf("Challenge Relative Path: %s", args[0]))
+	logger.LogInfo("Submit command called")
+	logger.LogInfo(fmt.Sprintf("Challenge Relative Path: %s", args[0]))
 
 	submissionId, err := j0Submitter.Run()
 	if err != nil {
 		logger.LogFatal(err)
 	}
 
-	logger.LogInfo(isVerbose, fmt.Sprintf("Result Submission ID: %s", submissionId))
+	logger.LogInfo(fmt.Sprintf("Result Submission ID: %s", submissionId))
 	fmt.Println(submissionId)
 }
 
