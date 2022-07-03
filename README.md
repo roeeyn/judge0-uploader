@@ -2,9 +2,9 @@
 
 ### TODO:
 
-- Initialize verbose at the beginning of the call to prevent it as a first parameter
 - Set URL inside the config files
 - Remove file at the end
+- Rename and remove de j0\_ prefix in all stuff
 
 ###### _CLI that helps you submit your local code into Judge0 easily_
 
