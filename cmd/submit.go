@@ -45,7 +45,7 @@ func run(cmd *cobra.Command, args []string) {
 	}
 
 	logger.LogInfo(fmt.Sprintf("Result Submission ID: %s", submissionId))
-	fmt.Println(submissionId)
+	fmt.Print(submissionId)
 }
 
 func init() {

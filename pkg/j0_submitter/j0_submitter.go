@@ -95,6 +95,16 @@ func (j0Submitter *J0Submitter) Run() (submissionId string, err error) {
 	j0Submitter.EncodedZipFile = encodedFile
 
 	submissionId, err = j0Submitter.SubmitEncodedFile()
+	if err != nil {
+		return
+	}
+
+	err = j0Submitter.Cleanup()
+	if err != nil {
+		return
+	}
+
+	logger.LogInfo("Cleanup executed successfully")
 	return
 }
 
@@ -109,6 +119,11 @@ func NewJ0Submitter(challengePath string, authToken string, serverUrl string) (j
 		AuthToken:     authToken,
 		ServerUrl:     serverUrl,
 	}
+	return
+}
+
+func (J0Submitter *J0Submitter) Cleanup() (err error) {
+	err = os.Remove(ZIP_FILE_NAME)
 	return
 }
 
