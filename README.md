@@ -1,5 +1,11 @@
 # Judge0 Uploader
 
+### TODO:
+
+- Initialize verbose at the beginning of the call to prevent it as a first parameter
+- Set URL inside the config files
+- Remove file at the end
+
 ###### _CLI that helps you submit your local code into Judge0 easily_
 
 Whenever we're working on new coding challenges, we want to try them as fast as possible with [Judge0](https://github.com/judge0/judge0), the platform we use to test our participants code.

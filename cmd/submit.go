@@ -6,11 +6,11 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/spf13/viper"
 
 	submitter "github.com/roeeyn/judge0-uploader/pkg/j0_submitter"
+	logger "github.com/roeeyn/judge0-uploader/pkg/logger"
 	"github.com/spf13/cobra"
 )
 
@@ -32,21 +32,20 @@ We're expecting that the directory contains the following files:
 }
 
 func run(cmd *cobra.Command, args []string) {
-	fmt.Println("submit command called")
-	fmt.Println("Challenge Relative Path:", args[0])
-
 	j0AuthToken := viper.GetString("judge0_auth_token")
 	isVerbose := viper.GetBool("verbose")
 	j0Submitter := submitter.NewJ0Submitter(args[0], j0AuthToken, isVerbose)
 
-	submissionId, err := j0Submitter.Run()
+	logger.LogInfo(isVerbose, "Submit command called")
+	logger.LogInfo(isVerbose, fmt.Sprintf("Challenge Relative Path: %s", args[0]))
 
+	submissionId, err := j0Submitter.Run()
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		logger.LogFatal(err)
 	}
 
-	fmt.Println("Result Submission ID:", submissionId)
+	logger.LogInfo(isVerbose, fmt.Sprintf("Result Submission ID: %s", submissionId))
+	fmt.Println(submissionId)
 }
 
 func init() {

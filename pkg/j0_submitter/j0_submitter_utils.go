@@ -51,7 +51,7 @@ func GetAbsolutePath(basePath string) (absPath string, err error) {
 	_, err = os.Stat(basePath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			err = fmt.Errorf(fmt.Sprintf("Base folder: '%s' does not exist", basePath))
+			err = fmt.Errorf("Base folder: '%s' does not exist", basePath)
 		}
 		return
 	}
@@ -59,7 +59,7 @@ func GetAbsolutePath(basePath string) (absPath string, err error) {
 	// Get the absolute path
 	absPath, err = filepath.Abs(basePath)
 	if err != nil {
-		err = fmt.Errorf(fmt.Sprintf("Error getting absolute basePath: %s", err.Error()))
+		err = fmt.Errorf("Error getting absolute basePath: %s", err.Error())
 		return
 	}
 

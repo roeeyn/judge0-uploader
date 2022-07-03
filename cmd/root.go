@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 
+	logger "github.com/roeeyn/judge0-uploader/pkg/logger"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -73,14 +74,15 @@ func initConfig() {
 	err := viper.ReadInConfig()
 	configFileUsed := viper.ConfigFileUsed()
 	isTokenSet := viper.IsSet("judge0_auth_token")
+	isVerbose := viper.GetBool("verbose")
 
 	if err == nil || isTokenSet {
-		fmt.Println("Using config file:", configFileUsed)
-		fmt.Println("Is Token Set?", isTokenSet)
+		logger.LogInfo(isVerbose, fmt.Sprintf("Using config file: %s", configFileUsed))
+		logger.LogInfo(isVerbose, fmt.Sprintf("Is Token Set?: %t", isTokenSet))
 	} else {
-		fmt.Printf("No valid config file found in: %s", viper.ConfigFileUsed())
-		fmt.Println("A Judge0 Auth Token is needed to use this utility.")
-		fmt.Printf("Searched for token in: %s", configFileUsed)
+		logger.LogError(isVerbose, fmt.Errorf("Searched for token in: %s", configFileUsed))
+		logger.LogError(isVerbose, fmt.Errorf("No valid config file found in: %s", viper.ConfigFileUsed()))
+		logger.LogFatal(fmt.Errorf("A Judge0 Auth Token is needed to use this utility."))
 		os.Exit(1)
 	}
 }

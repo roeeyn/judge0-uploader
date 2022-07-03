@@ -11,6 +11,8 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+
+	logger "github.com/roeeyn/judge0-uploader/pkg/logger"
 )
 
 const ZIP_FILE_NAME = "upload.judge0.zip"
@@ -71,7 +73,7 @@ func (j0Submitter *J0Submitter) Run() (submissionId string, err error) {
 		return
 	}
 
-	fmt.Println("Absolute path:", absPath)
+	logger.LogInfo(j0Submitter.IsVerbose, fmt.Sprintf("Absolute path: %s", absPath))
 	j0Submitter.AbsChallengePath = absPath
 
 	err = j0Submitter.GetChallengeFiles()
@@ -89,7 +91,7 @@ func (j0Submitter *J0Submitter) Run() (submissionId string, err error) {
 		return
 	}
 
-	fmt.Println("Encoded file successfully")
+	logger.LogInfo(j0Submitter.IsVerbose, "Encoded file successfully")
 	j0Submitter.EncodedZipFile = encodedFile
 
 	submissionId, err = j0Submitter.SubmitEncodedFile()
@@ -115,7 +117,7 @@ func (j0Submitter *J0Submitter) GetChallengeFiles() (err error) {
 	absBasePath := j0Submitter.AbsChallengePath
 	files, err := ioutil.ReadDir(absBasePath)
 	if err != nil {
-		err = fmt.Errorf(fmt.Sprintf("Error reading files inside folder: %s", err.Error()))
+		err = fmt.Errorf("Error reading files inside folder: %s", err.Error())
 		return
 	}
 
@@ -126,32 +128,31 @@ func (j0Submitter *J0Submitter) GetChallengeFiles() (err error) {
 		}
 
 		absFilePath := path.Join(absBasePath, file.Name())
-		fmt.Println("Found file: ", absFilePath)
+		logger.LogInfo(j0Submitter.IsVerbose, fmt.Sprintf("Found file: %s", absFilePath))
 
 		if isExpected, fileNameKey := IsExpectedFile(file.Name()); isExpected {
 			error := j0Submitter.Files.AddFile(fileNameKey, absFilePath)
-			fmt.Println("Added file: ", absFilePath)
+			logger.LogInfo(j0Submitter.IsVerbose, fmt.Sprintf("ADDED file: %s", absFilePath))
 			if error != nil {
-				err = fmt.Errorf(fmt.Sprintf("Error adding file property: %s", error.Error()))
+				err = fmt.Errorf("Error adding file property: %s", error.Error())
 				return
 			}
 		} else {
-			fmt.Println("Ignored file: ", absFilePath)
+			logger.LogInfo(j0Submitter.IsVerbose, fmt.Sprintf("IGNORED file: %s", absFilePath))
 		}
 	}
 
 	if j0Submitter.Files.ContainsEmptyFileProperties() {
-		err = fmt.Errorf(fmt.Sprintf("Not all needed files are present. Expected files are: %s", ExpectedChallengeFiles))
-		fmt.Println("Current Files:", j0Submitter.Files)
+		err = fmt.Errorf("Not all needed files are present. Expected files are: %s", ExpectedChallengeFiles)
 		return
 	}
 
-	fmt.Println("Challenge Files:", j0Submitter.Files)
+	logger.LogInfo(j0Submitter.IsVerbose, fmt.Sprintf("Challenge Files: %s", j0Submitter.Files))
 	return
 }
 
 func (j0Submitter *J0Submitter) ZipFiles() (err error) {
-	fmt.Println("creating zip archive...")
+	logger.LogInfo(j0Submitter.IsVerbose, "Creating zip archive...")
 	archive, err := os.Create(ZIP_FILE_NAME)
 	if err != nil {
 		return
@@ -166,7 +167,7 @@ func (j0Submitter *J0Submitter) ZipFiles() (err error) {
 		"test":          j0Submitter.Files.Test,
 	}
 
-	fmt.Println(filesMap)
+	logger.LogInfo(j0Submitter.IsVerbose, fmt.Sprintf("Files map: %s", filesMap))
 
 	mainContent := ""
 
@@ -174,14 +175,14 @@ func (j0Submitter *J0Submitter) ZipFiles() (err error) {
 		fileExtension := filepath.Ext(filePath)
 		fullFileName := fileName + fileExtension
 
-		fmt.Println("Opening: ", fullFileName)
+		logger.LogInfo(j0Submitter.IsVerbose, fmt.Sprintf("Opening: %s", fullFileName))
 
 		content, openErr := ioutil.ReadFile(filePath)
 		if openErr != nil {
 			return openErr
 		}
 
-		fmt.Printf("Appending '%s' to archive...\n", fullFileName)
+		logger.LogInfo(j0Submitter.IsVerbose, fmt.Sprintf("Appending '%s' to archive...", fullFileName))
 
 		mainContent = mainContent + string(content) + "\n"
 
@@ -212,7 +213,7 @@ func (j0Submitter *J0Submitter) ZipFiles() (err error) {
 		return
 	}
 
-	fmt.Println("closing zip archive...")
+	logger.LogInfo(j0Submitter.IsVerbose, "Closing zip archive...")
 	zipWriter.Close()
 
 	return
@@ -224,7 +225,7 @@ func (j0Submitter J0Submitter) SubmitEncodedFile() (submissionId string, err err
 	json_data, err := json.Marshal(values)
 
 	if err != nil {
-		err = fmt.Errorf(fmt.Sprintf("Error marshalling request data json: %s", err.Error()))
+		err = fmt.Errorf("Error marshalling request data json: %s", err.Error())
 		return
 	}
 
@@ -232,7 +233,7 @@ func (j0Submitter J0Submitter) SubmitEncodedFile() (submissionId string, err err
 
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(json_data))
 	if err != nil {
-		err = fmt.Errorf(fmt.Sprintf("Error creating the POST request: %s", err.Error()))
+		err = fmt.Errorf("Error creating the POST request: %s", err.Error())
 		return
 	}
 
@@ -241,38 +242,38 @@ func (j0Submitter J0Submitter) SubmitEncodedFile() (submissionId string, err err
 
 	reqDump, err := httputil.DumpRequestOut(req, true)
 	if err != nil {
-		err = fmt.Errorf(fmt.Sprintf("Error dumping request: %s", err.Error()))
+		err = fmt.Errorf("Error dumping request: %s", err.Error())
 		return
 	}
 
-	fmt.Printf("REQUEST:\n%s\n", string(reqDump))
+	logger.LogInfo(j0Submitter.IsVerbose, fmt.Sprintf("REQUEST:\n%s", string(reqDump)))
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		err = fmt.Errorf(fmt.Sprintf("Error sending the POST request: %s", err.Error()))
+		err = fmt.Errorf("Error sending the POST request: %s", err.Error())
 		return
 	}
 
-	fmt.Printf("RESPONSE status: %s\n", resp.Status)
+	logger.LogInfo(j0Submitter.IsVerbose, fmt.Sprintf("RESPONSE status: %s", resp.Status))
 
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		err = fmt.Errorf(fmt.Sprintf("Error reading response body: %s", err.Error()))
+		err = fmt.Errorf("Error reading response body: %s", err.Error())
 		return
 	}
 
-	fmt.Printf("Request sent successfully: %s\n", string(body))
+	logger.LogInfo(j0Submitter.IsVerbose, fmt.Sprintf("Request sent successfully:\n %s", string(body)))
 
 	var submission Submission
 	err = json.Unmarshal(body, &submission)
 	if err != nil {
-		err = fmt.Errorf(fmt.Sprintf("Error unmarshalling response body: %s", err.Error()))
+		err = fmt.Errorf("Error unmarshalling response body: %s", err.Error())
 		return
 	}
 
-	fmt.Printf("Obtained Submission ID: %s\n", submission.SubmissionId)
+	logger.LogInfo(j0Submitter.IsVerbose, fmt.Sprintf("Obtained Submission ID: %s", submission.SubmissionId))
 
 	return submission.SubmissionId, nil
 }
