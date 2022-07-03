@@ -2,7 +2,6 @@
 
 ### TODO:
 
-- Set URL inside the config files
 - Remove file at the end
 - Rename and remove de j0\_ prefix in all stuff
 

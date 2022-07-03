@@ -12,6 +12,11 @@ import (
 
 var ExpectedChallengeFiles = [4]string{"index", "run", "test", "testframework"}
 
+func CleanUrl(url string) (cleanedUrl string) {
+	cleanedUrl = strings.TrimSuffix(url, "/")
+	return
+}
+
 func IsExpectedFile(fullFileName string) (isExpected bool, fileName string) {
 	// Remove extension from the file
 	fileName = strings.TrimSuffix(fullFileName, filepath.Ext(fullFileName))

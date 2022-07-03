@@ -19,8 +19,8 @@ const ZIP_FILE_NAME = "upload.judge0.zip"
 const MAIN_FILE_NAME = "upload.judge0"
 
 type J0SubmitterFiles struct {
-	Run   string
 	Index string
+	Run   string
 	Test  string
 	// We're leaving it without camelcase to maintain consistency
 	// with the expected challenge file.
@@ -28,11 +28,12 @@ type J0SubmitterFiles struct {
 }
 
 type J0Submitter struct {
-	Files            *J0SubmitterFiles
+	AbsChallengePath string
 	AuthToken        string
 	ChallengePath    string
-	AbsChallengePath string
 	EncodedZipFile   string
+	Files            *J0SubmitterFiles
+	ServerUrl        string
 }
 
 type Submission struct {
@@ -101,11 +102,12 @@ func NewJ0SubmitterFiles() (j0SubmitterFiles *J0SubmitterFiles) {
 	return &J0SubmitterFiles{}
 }
 
-func NewJ0Submitter(challengePath string, authToken string) (j0Submitter *J0Submitter) {
+func NewJ0Submitter(challengePath string, authToken string, serverUrl string) (j0Submitter *J0Submitter) {
 	j0Submitter = &J0Submitter{
 		Files:         NewJ0SubmitterFiles(),
 		ChallengePath: challengePath,
 		AuthToken:     authToken,
+		ServerUrl:     serverUrl,
 	}
 	return
 }
@@ -227,7 +229,7 @@ func (j0Submitter J0Submitter) SubmitEncodedFile() (submissionId string, err err
 		return
 	}
 
-	url := "https://judge.hackademy.mx/submissions?wait=false"
+	url := CleanUrl(j0Submitter.ServerUrl) + "/submissions?wait=false"
 
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(json_data))
 	if err != nil {

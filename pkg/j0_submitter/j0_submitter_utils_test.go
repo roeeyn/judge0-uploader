@@ -10,6 +10,30 @@ import (
 )
 
 var _ = Describe("J0 Submitter Utils Test", func() {
+	Context("When having an URL", func() {
+		It("Should trim the trailing dash", func() {
+			// Arrange
+			url := "https://example.com/"
+
+			// Act
+			cleanedUrl := j0_submitter.CleanUrl(url)
+
+			// Assert
+			Expect(cleanedUrl).To(Equal("https://example.com"))
+		})
+
+		It("Should use the URL if doesn't have trailing dash", func() {
+			// Arrange
+			url := "https://example.com"
+
+			// Act
+			cleanedUrl := j0_submitter.CleanUrl(url)
+
+			// Assert
+			Expect(cleanedUrl).To(Equal("https://example.com"))
+		})
+	})
+
 	Context("When having found a file", func() {
 		It("Should now if it's a valid file", func() {
 			// Arrange

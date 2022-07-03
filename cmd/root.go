@@ -74,12 +74,16 @@ func initConfig() {
 	err := viper.ReadInConfig()
 	configFileUsed := viper.ConfigFileUsed()
 	isTokenSet := viper.IsSet("judge0_auth_token")
+	isServerUrlSet := viper.IsSet("judge0_server_url")
 
 	logger.IsVerbose = verbose
 
-	if err == nil || isTokenSet {
+	if err == nil || (isTokenSet && isServerUrlSet) {
+		serverUrl := viper.GetString("judge0_server_url")
+
 		logger.LogInfo(fmt.Sprintf("Using config file: %s", configFileUsed))
 		logger.LogInfo(fmt.Sprintf("Is Token Set?: %t", isTokenSet))
+		logger.LogInfo(fmt.Sprintf("Judge0 Server URL: %s", serverUrl))
 	} else {
 		logger.LogError(fmt.Errorf("Searched for token in: %s", configFileUsed))
 		logger.LogError(fmt.Errorf("No valid config file found in: %s", viper.ConfigFileUsed()))
