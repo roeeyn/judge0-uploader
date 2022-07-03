@@ -27,7 +27,7 @@ func LogFatal(err error) {
 }
 
 func LogInfo(verbose bool, message string) {
-	if true {
+	if verbose {
 		InfoLogger.Println(message)
 	}
 }
