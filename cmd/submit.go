@@ -27,11 +27,11 @@ We're expecting that the directory contains the following files:
 - testframework*
 
 * This files should have the same extension.`,
-	Run:  run,
+	Run:  runSubmit,
 	Args: cobra.ExactArgs(1),
 }
 
-func run(cmd *cobra.Command, args []string) {
+func runSubmit(cmd *cobra.Command, args []string) {
 	j0AuthToken := viper.GetString("judge0_auth_token")
 	j0ServerUrl := viper.GetString("judge0_server_url")
 	submitter := submitter.NewSubmitter(args[0], j0AuthToken, j0ServerUrl)

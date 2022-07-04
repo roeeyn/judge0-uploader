@@ -7,7 +7,10 @@ package cmd
 import (
 	"fmt"
 
+	logger "github.com/roeeyn/judge0-uploader/pkg/logger"
+	statusFetcher "github.com/roeeyn/judge0-uploader/pkg/status_fetcher"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // statusCmd represents the status command
@@ -21,10 +24,23 @@ and you can choose to wait until the execution has finished, or just get the cur
 status as it is.
 
 A execution is considered finished when the status is neither "In Queue" or "Processing".`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("status called")
-		fmt.Println("verbose:", verbose)
-	},
+	Run: runStatus,
+}
+
+func runStatus(cmd *cobra.Command, args []string) {
+	j0AuthToken := viper.GetString("judge0_auth_token")
+	j0ServerUrl := viper.GetString("judge0_server_url")
+	statusFetcher := statusFetcher.NewStatusFetcher(j0AuthToken, j0ServerUrl)
+
+	logger.LogInfo("Status command called")
+	logger.LogInfo("Requesting status for Submission Id: PENDING")
+
+	submissionStatus, err := statusFetcher.Run()
+	if err != nil {
+		logger.LogFatal(err)
+	}
+
+	logger.LogInfo(fmt.Sprintf("Submission status: %s", submissionStatus))
 }
 
 func init() {
