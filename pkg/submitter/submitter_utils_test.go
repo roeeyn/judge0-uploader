@@ -1,4 +1,4 @@
-package j0_submitter_test
+package submitter_test
 
 import (
 	. "github.com/onsi/ginkgo/v2"
@@ -6,7 +6,7 @@ import (
 
 	"path/filepath"
 
-	"github.com/roeeyn/judge0-uploader/pkg/j0_submitter"
+	"github.com/roeeyn/judge0-uploader/pkg/submitter"
 )
 
 var _ = Describe("J0 Submitter Utils Test", func() {
@@ -16,7 +16,7 @@ var _ = Describe("J0 Submitter Utils Test", func() {
 			url := "https://example.com/"
 
 			// Act
-			cleanedUrl := j0_submitter.CleanUrl(url)
+			cleanedUrl := submitter.CleanUrl(url)
 
 			// Assert
 			Expect(cleanedUrl).To(Equal("https://example.com"))
@@ -27,7 +27,7 @@ var _ = Describe("J0 Submitter Utils Test", func() {
 			url := "https://example.com"
 
 			// Act
-			cleanedUrl := j0_submitter.CleanUrl(url)
+			cleanedUrl := submitter.CleanUrl(url)
 
 			// Assert
 			Expect(cleanedUrl).To(Equal("https://example.com"))
@@ -40,7 +40,7 @@ var _ = Describe("J0 Submitter Utils Test", func() {
 			files := []string{"index.py", "run", "test.js", "testframework.esotericextension"}
 			for _, file := range files {
 				// Act
-				isExpected, _ := j0_submitter.IsExpectedFile(file)
+				isExpected, _ := submitter.IsExpectedFile(file)
 
 				// Assert
 				Expect(isExpected).To(BeTrue())
@@ -53,7 +53,7 @@ var _ = Describe("J0 Submitter Utils Test", func() {
 			file := "not_expected_file.ex"
 
 			// Act
-			isExpected, _ := j0_submitter.IsExpectedFile(file)
+			isExpected, _ := submitter.IsExpectedFile(file)
 
 			// Assert
 			Expect(isExpected).To(BeFalse())
@@ -66,7 +66,7 @@ var _ = Describe("J0 Submitter Utils Test", func() {
 			path := "./non_existant_path"
 
 			// Act
-			_, err := j0_submitter.GetAbsolutePath(path)
+			_, err := submitter.GetAbsolutePath(path)
 
 			// Assert
 			Expect(err.Error()).To(Equal("Base folder: './non_existant_path' does not exist"))
@@ -79,7 +79,7 @@ var _ = Describe("J0 Submitter Utils Test", func() {
 			absPath, _ := filepath.Abs(basePath)
 
 			// Act
-			calculatedPath, err := j0_submitter.GetAbsolutePath(basePath)
+			calculatedPath, err := submitter.GetAbsolutePath(basePath)
 
 			// Assert
 			Expect(err).To(BeNil())

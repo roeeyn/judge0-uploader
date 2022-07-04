@@ -1,4 +1,4 @@
-package j0_submitter
+package submitter
 
 import (
 	"archive/zip"
@@ -18,7 +18,7 @@ import (
 const ZIP_FILE_NAME = "upload.judge0.zip"
 const MAIN_FILE_NAME = "upload.judge0"
 
-type J0SubmitterFiles struct {
+type SubmitterFiles struct {
 	Index string
 	Run   string
 	Test  string
@@ -27,12 +27,12 @@ type J0SubmitterFiles struct {
 	Testframework string
 }
 
-type J0Submitter struct {
+type Submitter struct {
 	AbsChallengePath string
 	AuthToken        string
 	ChallengePath    string
 	EncodedZipFile   string
-	Files            *J0SubmitterFiles
+	Files            *SubmitterFiles
 	ServerUrl        string
 }
 
@@ -40,48 +40,48 @@ type Submission struct {
 	SubmissionId string `json:"token"`
 }
 
-func (j0SubmitterFiles *J0SubmitterFiles) AddFile(fileKey string, fileAbsPath string) error {
+func (submitterFiles *SubmitterFiles) AddFile(fileKey string, fileAbsPath string) error {
 	switch fileKey {
 	case "run":
-		j0SubmitterFiles.Run = fileAbsPath
+		submitterFiles.Run = fileAbsPath
 	case "index":
-		j0SubmitterFiles.Index = fileAbsPath
+		submitterFiles.Index = fileAbsPath
 	case "test":
-		j0SubmitterFiles.Test = fileAbsPath
+		submitterFiles.Test = fileAbsPath
 	case "testframework":
-		j0SubmitterFiles.Testframework = fileAbsPath
+		submitterFiles.Testframework = fileAbsPath
 	default:
 		return fmt.Errorf("Unknown file key: %s", fileKey)
 	}
 	return nil
 }
 
-func (j0SubmitterFiles *J0SubmitterFiles) ContainsEmptyFileProperties() bool {
+func (submitterFiles *SubmitterFiles) ContainsEmptyFileProperties() bool {
 	// Iterate over the struct fields and check if any of them is empty
 	// because at this point every file is needed.
-	if j0SubmitterFiles.Run == "" || j0SubmitterFiles.Index == "" || j0SubmitterFiles.Test == "" || j0SubmitterFiles.Testframework == "" {
+	if submitterFiles.Run == "" || submitterFiles.Index == "" || submitterFiles.Test == "" || submitterFiles.Testframework == "" {
 		return true
 	}
 
 	return false
 }
 
-func (j0Submitter *J0Submitter) Run() (submissionId string, err error) {
-	challengePath := j0Submitter.ChallengePath
+func (submitter *Submitter) Run() (submissionId string, err error) {
+	challengePath := submitter.ChallengePath
 	absPath, err := GetAbsolutePath(challengePath)
 	if err != nil {
 		return
 	}
 
 	logger.LogInfo(fmt.Sprintf("Absolute path: %s", absPath))
-	j0Submitter.AbsChallengePath = absPath
+	submitter.AbsChallengePath = absPath
 
-	err = j0Submitter.GetChallengeFiles()
+	err = submitter.GetChallengeFiles()
 	if err != nil {
 		return
 	}
 
-	err = j0Submitter.ZipFiles()
+	err = submitter.ZipFiles()
 	if err != nil {
 		return
 	}
@@ -92,14 +92,14 @@ func (j0Submitter *J0Submitter) Run() (submissionId string, err error) {
 	}
 
 	logger.LogInfo("Encoded file successfully")
-	j0Submitter.EncodedZipFile = encodedFile
+	submitter.EncodedZipFile = encodedFile
 
-	submissionId, err = j0Submitter.SubmitEncodedFile()
+	submissionId, err = submitter.SubmitEncodedFile()
 	if err != nil {
 		return
 	}
 
-	err = j0Submitter.Cleanup()
+	err = submitter.Cleanup()
 	if err != nil {
 		return
 	}
@@ -108,13 +108,13 @@ func (j0Submitter *J0Submitter) Run() (submissionId string, err error) {
 	return
 }
 
-func NewJ0SubmitterFiles() (j0SubmitterFiles *J0SubmitterFiles) {
-	return &J0SubmitterFiles{}
+func NewSubmitterFiles() (submitterFiles *SubmitterFiles) {
+	return &SubmitterFiles{}
 }
 
-func NewJ0Submitter(challengePath string, authToken string, serverUrl string) (j0Submitter *J0Submitter) {
-	j0Submitter = &J0Submitter{
-		Files:         NewJ0SubmitterFiles(),
+func NewSubmitter(challengePath string, authToken string, serverUrl string) (submitter *Submitter) {
+	submitter = &Submitter{
+		Files:         NewSubmitterFiles(),
 		ChallengePath: challengePath,
 		AuthToken:     authToken,
 		ServerUrl:     serverUrl,
@@ -122,14 +122,14 @@ func NewJ0Submitter(challengePath string, authToken string, serverUrl string) (j
 	return
 }
 
-func (J0Submitter *J0Submitter) Cleanup() (err error) {
+func (submitter *Submitter) Cleanup() (err error) {
 	err = os.Remove(ZIP_FILE_NAME)
 	return
 }
 
-func (j0Submitter *J0Submitter) GetChallengeFiles() (err error) {
+func (submitter *Submitter) GetChallengeFiles() (err error) {
 	// Verify that the basePath contains expected files
-	absBasePath := j0Submitter.AbsChallengePath
+	absBasePath := submitter.AbsChallengePath
 	files, err := ioutil.ReadDir(absBasePath)
 	if err != nil {
 		err = fmt.Errorf("Error reading files inside folder: %s", err.Error())
@@ -146,7 +146,7 @@ func (j0Submitter *J0Submitter) GetChallengeFiles() (err error) {
 		logger.LogInfo(fmt.Sprintf("Found file: %s", absFilePath))
 
 		if isExpected, fileNameKey := IsExpectedFile(file.Name()); isExpected {
-			error := j0Submitter.Files.AddFile(fileNameKey, absFilePath)
+			error := submitter.Files.AddFile(fileNameKey, absFilePath)
 			logger.LogInfo(fmt.Sprintf("ADDED file: %s", absFilePath))
 			if error != nil {
 				err = fmt.Errorf("Error adding file property: %s", error.Error())
@@ -157,16 +157,16 @@ func (j0Submitter *J0Submitter) GetChallengeFiles() (err error) {
 		}
 	}
 
-	if j0Submitter.Files.ContainsEmptyFileProperties() {
+	if submitter.Files.ContainsEmptyFileProperties() {
 		err = fmt.Errorf("Not all needed files are present. Expected files are: %s", ExpectedChallengeFiles)
 		return
 	}
 
-	logger.LogInfo(fmt.Sprintf("Challenge Files: %s", j0Submitter.Files))
+	logger.LogInfo(fmt.Sprintf("Challenge Files: %s", submitter.Files))
 	return
 }
 
-func (j0Submitter *J0Submitter) ZipFiles() (err error) {
+func (submitter *Submitter) ZipFiles() (err error) {
 	logger.LogInfo("Creating zip archive...")
 	archive, err := os.Create(ZIP_FILE_NAME)
 	if err != nil {
@@ -177,9 +177,9 @@ func (j0Submitter *J0Submitter) ZipFiles() (err error) {
 	zipWriter := zip.NewWriter(archive)
 
 	filesMap := map[string]string{
-		"index":         j0Submitter.Files.Index,
-		"testframework": j0Submitter.Files.Testframework,
-		"test":          j0Submitter.Files.Test,
+		"index":         submitter.Files.Index,
+		"testframework": submitter.Files.Testframework,
+		"test":          submitter.Files.Test,
 	}
 
 	logger.LogInfo(fmt.Sprintf("Files map: %s", filesMap))
@@ -213,7 +213,7 @@ func (j0Submitter *J0Submitter) ZipFiles() (err error) {
 		return
 	}
 
-	runContent, err := ioutil.ReadFile(j0Submitter.Files.Run)
+	runContent, err := ioutil.ReadFile(submitter.Files.Run)
 	if err != nil {
 		return
 	}
@@ -234,9 +234,9 @@ func (j0Submitter *J0Submitter) ZipFiles() (err error) {
 	return
 }
 
-func (j0Submitter J0Submitter) SubmitEncodedFile() (submissionId string, err error) {
+func (submitter Submitter) SubmitEncodedFile() (submissionId string, err error) {
 
-	values := map[string]string{"language_id": "89", "additional_files": j0Submitter.EncodedZipFile}
+	values := map[string]string{"language_id": "89", "additional_files": submitter.EncodedZipFile}
 	json_data, err := json.Marshal(values)
 
 	if err != nil {
@@ -244,7 +244,7 @@ func (j0Submitter J0Submitter) SubmitEncodedFile() (submissionId string, err err
 		return
 	}
 
-	url := CleanUrl(j0Submitter.ServerUrl) + "/submissions?wait=false"
+	url := CleanUrl(submitter.ServerUrl) + "/submissions?wait=false"
 
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(json_data))
 	if err != nil {
@@ -253,7 +253,7 @@ func (j0Submitter J0Submitter) SubmitEncodedFile() (submissionId string, err err
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-Auth-Token", j0Submitter.AuthToken)
+	req.Header.Set("X-Auth-Token", submitter.AuthToken)
 
 	reqDump, err := httputil.DumpRequestOut(req, true)
 	if err != nil {

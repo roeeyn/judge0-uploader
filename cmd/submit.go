@@ -9,8 +9,8 @@ import (
 
 	"github.com/spf13/viper"
 
-	submitter "github.com/roeeyn/judge0-uploader/pkg/j0_submitter"
 	logger "github.com/roeeyn/judge0-uploader/pkg/logger"
+	submitter "github.com/roeeyn/judge0-uploader/pkg/submitter"
 	"github.com/spf13/cobra"
 )
 
@@ -34,12 +34,12 @@ We're expecting that the directory contains the following files:
 func run(cmd *cobra.Command, args []string) {
 	j0AuthToken := viper.GetString("judge0_auth_token")
 	j0ServerUrl := viper.GetString("judge0_server_url")
-	j0Submitter := submitter.NewJ0Submitter(args[0], j0AuthToken, j0ServerUrl)
+	submitter := submitter.NewSubmitter(args[0], j0AuthToken, j0ServerUrl)
 
 	logger.LogInfo("Submit command called")
 	logger.LogInfo(fmt.Sprintf("Challenge Relative Path: %s", args[0]))
 
-	submissionId, err := j0Submitter.Run()
+	submissionId, err := submitter.Run()
 	if err != nil {
 		logger.LogFatal(err)
 	}

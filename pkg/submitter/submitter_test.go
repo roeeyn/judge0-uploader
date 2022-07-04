@@ -1,4 +1,4 @@
-package j0_submitter_test
+package submitter_test
 
 import (
 	"io/ioutil"
@@ -9,7 +9,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	submitter "github.com/roeeyn/judge0-uploader/pkg/j0_submitter"
+	submitter "github.com/roeeyn/judge0-uploader/pkg/submitter"
 )
 
 var baseTestChallengeDir = "test-challenge/"
@@ -45,7 +45,7 @@ var _ = Describe("Judge0 Submitter Struct Tests", func() {
 			fakeToken := faker.Word()
 
 			// Act
-			submitter := submitter.NewJ0Submitter(ChallengeName, fakeToken, fakeUrl)
+			submitter := submitter.NewSubmitter(ChallengeName, fakeToken, fakeUrl)
 
 			// Assert
 			Expect(submitter).ToNot(BeNil())
@@ -64,7 +64,7 @@ var _ = Describe("Judge0 Submitter File Struct Tests", func() {
 		It("should return a new submitter file", func() {
 			// Arrange
 			// Act
-			file := submitter.NewJ0SubmitterFiles()
+			file := submitter.NewSubmitterFiles()
 
 			// Assert
 			Expect(file).ToNot(BeNil())
@@ -77,7 +77,7 @@ var _ = Describe("Judge0 Submitter File Struct Tests", func() {
 			testName := faker.FirstName()
 			testframeworkName := faker.FirstName()
 
-			file := submitter.NewJ0SubmitterFiles()
+			file := submitter.NewSubmitterFiles()
 
 			// Act
 			errorList := []error{
@@ -101,7 +101,7 @@ var _ = Describe("Judge0 Submitter File Struct Tests", func() {
 
 		It("should return an error if invalid file added", func() {
 			// Arrange
-			file := submitter.NewJ0SubmitterFiles()
+			file := submitter.NewSubmitterFiles()
 
 			// Act
 			err := file.AddFile("nonexisting", "any value")
@@ -118,7 +118,7 @@ var _ = Describe("Judge0 Submitter File Struct Tests", func() {
 			testName := faker.FirstName()
 			testframeworkName := faker.FirstName()
 
-			file := submitter.NewJ0SubmitterFiles()
+			file := submitter.NewSubmitterFiles()
 
 			// Act
 			errorList := []error{
@@ -167,7 +167,7 @@ var _ = Describe("Judge0 Submitter Tests", func() {
 	Context("When getting the files of the submission", func() {
 		It("should get the correct absolute path of the files", func() {
 			// Arrange
-			j0submitter := submitter.NewJ0Submitter(baseTestChallengeDir, "", "")
+			j0submitter := submitter.NewSubmitter(baseTestChallengeDir, "", "")
 			absFilePath, err := submitter.GetAbsolutePath(baseTestChallengeDir)
 			Expect(err).To(BeNil())
 
@@ -185,7 +185,7 @@ var _ = Describe("Judge0 Submitter Tests", func() {
 
 		It("should return an error if an expected file is missing", func() {
 			// Arrange
-			j0submitter := submitter.NewJ0Submitter(baseTestChallengeDir, "", "")
+			j0submitter := submitter.NewSubmitter(baseTestChallengeDir, "", "")
 			absFilePath, err := submitter.GetAbsolutePath(baseTestChallengeDir)
 			Expect(err).To(BeNil())
 
@@ -208,7 +208,7 @@ var _ = Describe("Judge0 Submitter Tests", func() {
 			// Arrange
 			invalid_path := "/invalid/path"
 			// Act
-			j0submitter := submitter.NewJ0Submitter(invalid_path, "", "")
+			j0submitter := submitter.NewSubmitter(invalid_path, "", "")
 			j0submitter.AbsChallengePath = invalid_path
 			expectedError := j0submitter.GetChallengeFiles()
 

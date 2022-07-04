@@ -1,4 +1,4 @@
-package j0_submitter_test
+package submitter_test
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestJ0Submitter(t *testing.T) {
+func TestSubmitter(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "J0Submitter Suite")
+	RunSpecs(t, "Submitter Suite")
 }

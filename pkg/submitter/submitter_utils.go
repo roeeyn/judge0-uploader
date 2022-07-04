@@ -1,4 +1,4 @@
-package j0_submitter
+package submitter
 
 import (
 	"bufio"
