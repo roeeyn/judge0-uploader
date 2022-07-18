@@ -9,13 +9,14 @@ import (
 
 	logger "github.com/roeeyn/judge0-uploader/pkg/logger"
 	statusFetcher "github.com/roeeyn/judge0-uploader/pkg/status_fetcher"
+	utils "github.com/roeeyn/judge0-uploader/pkg/utils"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 // statusCmd represents the status command
 var statusCmd = &cobra.Command{
-	Use:   "status",
+	Use:   "status YOUR_SUBMISSION_ID",
 	Short: "Get the status of a challenge submission",
 	Long: `Get the status of a challenge submission by its submission ID.
 
@@ -24,23 +25,28 @@ and you can choose to wait until the execution has finished, or just get the cur
 status as it is.
 
 A execution is considered finished when the status is neither "In Queue" or "Processing".`,
-	Run: runStatus,
+	Run:  runStatus,
+	Args: cobra.ExactArgs(1),
 }
 
 func runStatus(cmd *cobra.Command, args []string) {
 	j0AuthToken := viper.GetString("judge0_auth_token")
 	j0ServerUrl := viper.GetString("judge0_server_url")
-	statusFetcher := statusFetcher.NewStatusFetcher(j0AuthToken, j0ServerUrl)
+	submissionId := args[0]
+	statusFetcher := statusFetcher.NewStatusFetcher(j0AuthToken, j0ServerUrl, submissionId)
 
 	logger.LogInfo("Status command called")
-	logger.LogInfo("Requesting status for Submission Id: PENDING")
+	logger.LogInfo(fmt.Sprintf("Requesting status for Submission ID: %s", submissionId))
 
-	submissionStatus, err := statusFetcher.Run()
+	submissionStatusResponse, err := statusFetcher.Run()
 	if err != nil {
 		logger.LogFatal(err)
 	}
 
-	logger.LogInfo(fmt.Sprintf("Submission status: %s", submissionStatus))
+	logger.LogInfo(fmt.Sprintf("Status ID: %d", submissionStatusResponse.Status.Id))
+	logger.LogInfo(fmt.Sprintf("Status description: %s", submissionStatusResponse.Status.Description))
+
+	fmt.Println(utils.PrettyPrint(submissionStatusResponse))
 }
 
 func init() {

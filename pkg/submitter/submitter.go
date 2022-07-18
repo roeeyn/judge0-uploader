@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 
 	logger "github.com/roeeyn/judge0-uploader/pkg/logger"
+	utils "github.com/roeeyn/judge0-uploader/pkg/utils"
 )
 
 const ZIP_FILE_NAME = "upload.judge0.zip"
@@ -244,7 +245,7 @@ func (submitter Submitter) SubmitEncodedFile() (submissionId string, err error) 
 		return
 	}
 
-	url := CleanUrl(submitter.ServerUrl) + "/submissions?wait=false"
+	url := utils.CleanUrl(submitter.ServerUrl) + "/submissions?wait=false"
 
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(json_data))
 	if err != nil {
