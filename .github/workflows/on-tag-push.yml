@@ -27,62 +27,34 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Build binaries
-        uses: sosedoff/actions/golang-build@master
-
-      - name: Upload judge0-uploader darwin_386
-        id: upload_judge0_uploader_darwin_386
-        uses: actions/upload-release-asset@v1
+      - name: Generate build files
+        uses: thatisuday/go-cross-build@v1
         with:
-          # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object,
-          # which include a `upload_url`. See this blog post for more info:
-          # https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: .release/judge0-uploader_darwin_386.zip
-          asset_name: judge0-uploader_darwin_386.zip
-          asset_content_type: application/zip
+            platforms: 'linux/amd64, linux/arm64, ios/amd64, ios/arm64'
+            package: ''
+            name: 'judge0-uploader'
+            compress: 'true'
+            dest: '.release/'
 
-      - name: Upload judge0-uploader darwin_amd64
-        id: upload_judge0_uploader_darwin_amd64
-        uses: actions/upload-release-asset@v1
+      - name: Upload judge0-uploader linux_arm64
+        uses: softprops/action-gh-release@v1
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: .release/judge0-uploader_darwin_amd64.zip
-          asset_name: judge0-uploader_darwin_amd64.zip
-          asset_content_type: application/zip
+          files: ./release/judge0-uploader_linux_arm64.tar.gz
 
-      - name: Upload judge0-uploader windows_386
-        id: upload_judge0_uploader_windows_386
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: .release/judge0-uploader_windows_386.zip
-          asset_name: judge0-uploader_windows_386.zip
-          asset_content_type: application/zip
-
-      - name: Upload judge0-uploader windows_amd64
-        id: upload_judge0_uploader_windows_amd64
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: .release/judge0-uploader_windows_amd64.zip
-          asset_name: judge0-uploader_windows_amd64.zip
-          asset_content_type: application/zip
-
-      - name: Upload judge0-uploader linux_386
-        id: upload_judge0_uploader_linux_386
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: .release/judge0-uploader_linux_386.zip
-          asset_name: judge0-uploader_linux_386.zip
-          asset_content_type: application/zip
-
-      - name: Upload judge0-uploader linux_amd64
-        id: upload_judge0_uploader_linux_amd64
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: .release/judge0-uploader_linux_amd64.zip
-          asset_name: judge0-uploader_linux_amd64.zip
-          asset_content_type: application/zip
+      # - name: Upload judge0-uploader linux_arm64
+      #   id: upload_judge0_uploader_linux_arm64
+      #   uses: actions/upload-release-asset@v1
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #     asset_path: .release/judge0-uploader_linux_arm64.tar.gz
+      #     asset_name: judge0-uploader_linux_arm64.tar.gz
+      #     asset_content_type: application/zip
+      #
+      # - name: Upload judge0-uploader linux_amd64
+      #   id: upload_judge0_uploader_linux_amd64
+      #   uses: actions/upload-release-asset@v1
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #     asset_path: .release/judge0-uploader_linux_amd64.zip
+      #     asset_name: judge0-uploader_linux_amd64.zip
+      #     asset_content_type: application/zip
