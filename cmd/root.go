@@ -13,13 +13,16 @@ import (
 	"github.com/spf13/viper"
 )
 
+var version = "0.0.1"
+
 var cfgFile string
 var verbose bool
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "judge0-uploader",
-	Short: "Utility to upload local files to Judge0",
+	Use:     "judge0-uploader",
+	Version: version,
+	Short:   "Utility to upload local files to Judge0",
 	Long: `This CLI utility is used to upload local files to Judge0.
 
 This is useful to load local coding challenges to Judge0, execute them and get the results.`,
