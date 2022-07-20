@@ -1,0 +1,88 @@
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+name: Create Release
+
+jobs:
+  build:
+    name: Create Release
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions
+      COMPRESS_FILES: true
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: ${{ github.event.head_commit.message }}
+          draft: false
+          prerelease: false
+
+      - name: Build binaries
+        uses: sosedoff/actions/golang-build@master
+
+      - name: Upload judge0-uploader darwin_386
+        id: upload_judge0_uploader_darwin_386
+        uses: actions/upload-release-asset@v1
+        with:
+          # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object,
+          # which include a `upload_url`. See this blog post for more info:
+          # https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: .release/judge0-uploader_darwin_386.zip
+          asset_name: judge0-uploader_darwin_386.zip
+          asset_content_type: application/zip
+
+      - name: Upload judge0-uploader darwin_amd64
+        id: upload_judge0_uploader_darwin_amd64
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: .release/judge0-uploader_darwin_amd64.zip
+          asset_name: judge0-uploader_darwin_amd64.zip
+          asset_content_type: application/zip
+
+      - name: Upload judge0-uploader windows_386
+        id: upload_judge0_uploader_windows_386
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: .release/judge0-uploader_windows_386.zip
+          asset_name: judge0-uploader_windows_386.zip
+          asset_content_type: application/zip
+
+      - name: Upload judge0-uploader windows_amd64
+        id: upload_judge0_uploader_windows_amd64
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: .release/judge0-uploader_windows_amd64.zip
+          asset_name: judge0-uploader_windows_amd64.zip
+          asset_content_type: application/zip
+
+      - name: Upload judge0-uploader linux_386
+        id: upload_judge0_uploader_linux_386
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: .release/judge0-uploader_linux_386.zip
+          asset_name: judge0-uploader_linux_386.zip
+          asset_content_type: application/zip
+
+      - name: Upload judge0-uploader linux_amd64
+        id: upload_judge0_uploader_linux_amd64
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: .release/judge0-uploader_linux_amd64.zip
+          asset_name: judge0-uploader_linux_amd64.zip
+          asset_content_type: application/zip
