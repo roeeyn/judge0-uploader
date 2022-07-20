@@ -14,6 +14,8 @@ import (
 	"github.com/spf13/viper"
 )
 
+var Wait bool
+
 // statusCmd represents the status command
 var statusCmd = &cobra.Command{
 	Use:   "status YOUR_SUBMISSION_ID",
@@ -33,7 +35,7 @@ func runStatus(cmd *cobra.Command, args []string) {
 	j0AuthToken := viper.GetString("judge0_auth_token")
 	j0ServerUrl := viper.GetString("judge0_server_url")
 	submissionId := args[0]
-	statusFetcher := statusFetcher.NewStatusFetcher(j0AuthToken, j0ServerUrl, submissionId)
+	statusFetcher := statusFetcher.NewStatusFetcher(j0AuthToken, j0ServerUrl, submissionId, Wait)
 
 	logger.LogInfo("Status command called")
 	logger.LogInfo(fmt.Sprintf("Requesting status for Submission ID: %s", submissionId))
@@ -51,6 +53,7 @@ func runStatus(cmd *cobra.Command, args []string) {
 
 func init() {
 	rootCmd.AddCommand(statusCmd)
+	statusCmd.Flags().BoolVarP(&Wait, "wait", "w", false, "Wait until the execution has finished")
 
 	// Here you will define your flags and configuration settings.
 

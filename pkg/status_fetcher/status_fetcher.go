@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
+	"time"
 
 	logger "github.com/roeeyn/judge0-uploader/pkg/logger"
 	utils "github.com/roeeyn/judge0-uploader/pkg/utils"
@@ -14,6 +15,7 @@ import (
 type StatusFetcher struct {
 	AuthToken    string
 	ServerUrl    string
+	ShouldWait   bool
 	SubmissionId string
 }
 
@@ -33,15 +35,18 @@ type SubmissionStatusResponse struct {
 	Status        SubmissionStatus `json:"status"`
 }
 
-func NewStatusFetcher(authToken string, serverUrl string, submissionId string) StatusFetcher {
+func NewStatusFetcher(authToken string, serverUrl string, submissionId string, shouldWait bool) StatusFetcher {
 	return StatusFetcher{
 		AuthToken:    authToken,
 		ServerUrl:    serverUrl,
+		ShouldWait:   shouldWait,
 		SubmissionId: submissionId,
 	}
 }
 
 func (statusFetcher StatusFetcher) GetSubmissionStatus() (submissionStatusResponse SubmissionStatusResponse, err error) {
+
+	logger.LogInfo("Getting submission status")
 
 	url := utils.CleanUrl(statusFetcher.ServerUrl) + "/submissions/" + statusFetcher.SubmissionId
 
@@ -92,6 +97,22 @@ func (statusFetcher StatusFetcher) GetSubmissionStatus() (submissionStatusRespon
 
 func (statusFetcher StatusFetcher) Run() (response SubmissionStatusResponse, err error) {
 	logger.LogInfo("Running")
-	response, err = statusFetcher.GetSubmissionStatus()
+
+	ok := true
+	for ok {
+		response, err = statusFetcher.GetSubmissionStatus()
+
+		if err != nil {
+			err = fmt.Errorf("Error getting submission status: %s", err.Error())
+			return
+		}
+
+		ok = statusFetcher.ShouldWait && (response.Status.Description == "In Queue" || response.Status.Description == "Processing")
+
+		if ok {
+			// Wait for one second before pinging the server again
+			time.Sleep(time.Second * 1)
+		}
+	}
 	return
 }

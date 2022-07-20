@@ -1,10 +1,23 @@
 # Judge0 Uploader
 
-## TODO
-
-- Use structs instead of pointers
-
 ###### _CLI that helps you submit your local code into Judge0 easily_
+
+```bash
+###############################
+# REAL
+# Create challenge-how-edabit-works
+npx @roeeyn/challenge-generator --edabit-id ARr5tA458o2tC9FTN -s
+
+# Submit challenge
+go run main.go submit sample_challenge --verbose
+
+# fetch status
+go run main.go status 4ec633f1-4dca-4870-803c-7a01bf4aef23 --verbose
+
+# Submit and wait for the response
+go run main.go submit challenge-how-edabit-works | xargs go run main.go status --wait --verbose
+###############################
+```
 
 Whenever we're working on new coding challenges, we want to try them as fast as possible with [Judge0](https://github.com/judge0/judge0), the platform we use to test our participants code.
 As there are too much submissions, we wanted a CLI that helped us to try the local code with the least friction possible.
