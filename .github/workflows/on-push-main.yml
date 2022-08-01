@@ -18,10 +18,19 @@ jobs:
         run: go install -mod=mod github.com/onsi/ginkgo/v2/ginkgo
       - name: Test
         run: ginkgo pkg/submitter
-      - name: Build
-        run: go build
+      - name: Build Macos ARM64
+        run: env GOOS=darwin GOARCH=arm64 go build -o judge0-uploader_macos_arm64
+      - name: Build Macos AMD64
+        run: env GOOS=darwin GOARCH=amd64 go build -o judge0-uploader_macos_amd64
+      - name: Build Linux ARM64
+        run: env GOOS=linux GOARCH=arm64 go build -o judge0-uploader_linux_arm64
+      - name: Build Linux AMD64
+        run: env GOOS=linux GOARCH=amd64 go build -o judge0-uploader_linux_amd64
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            judge0-uploader
+            judge0-uploader_macos_arm64
+            judge0-uploader_macos_amd64
+            judge0-uploader_linux_arm64
+            judge0-uploader_linux_amd64
