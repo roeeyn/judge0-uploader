@@ -1,60 +1,29 @@
 on:
   push:
-    # Sequence of patterns matched against refs/tags
-    tags:
-      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+    branches:
+      - main
 
 name: Create Release
 
 jobs:
   build:
-    name: Create Release
     runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions
-      COMPRESS_FILES: true
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v2
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
+      - uses: actions/setup-go@v3
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body: ${{ github.event.head_commit.message }}
-          draft: false
-          prerelease: false
-
-      - name: Generate build files
-        uses: thatisuday/go-cross-build@v1
-        with:
-            platforms: 'linux/amd64, linux/arm64, ios/amd64, ios/arm64'
-            package: ''
-            name: 'judge0-uploader'
-            compress: 'true'
-            dest: '.release/'
-
-      - name: Upload judge0-uploader linux_arm64
+          go-version: '^1.18.4' # The Go version to download (if necessary) and use.
+      - name: Install Ginkgo
+        run: go install -mod=mod github.com/onsi/ginkgo/v2/ginkgo
+      - name: Test
+        run: ginkgo pkg/submitter
+      - name: Build
+        run: go build
+        if: startsWith(github.ref, 'refs/tags/')
+      - name: Release
         uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: ./release/judge0-uploader_linux_arm64.tar.gz
-
-      # - name: Upload judge0-uploader linux_arm64
-      #   id: upload_judge0_uploader_linux_arm64
-      #   uses: actions/upload-release-asset@v1
-      #   with:
-      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
-      #     asset_path: .release/judge0-uploader_linux_arm64.tar.gz
-      #     asset_name: judge0-uploader_linux_arm64.tar.gz
-      #     asset_content_type: application/zip
-      #
-      # - name: Upload judge0-uploader linux_amd64
-      #   id: upload_judge0_uploader_linux_amd64
-      #   uses: actions/upload-release-asset@v1
-      #   with:
-      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
-      #     asset_path: .release/judge0-uploader_linux_amd64.zip
-      #     asset_name: judge0-uploader_linux_amd64.zip
-      #     asset_content_type: application/zip
+          files: |
+            judge0-uploader
