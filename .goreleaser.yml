@@ -9,7 +9,7 @@ builds:
       - darwin
 brews:
 - name: judge0-uploader
-  homepage: https://github.com/roeeyn/homebrew-tools
+  homepage: https://github.com/roeeyn/judge0-uploader
   description: "Judge0 utility to upload files and test them directly from the terminal"
   license: "MIT"
   # test: |
