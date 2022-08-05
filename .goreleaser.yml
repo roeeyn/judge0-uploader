@@ -1,0 +1,19 @@
+# This is an example .goreleaser.yml file with some sane defaults.
+# Make sure to check the documentation at http://goreleaser.com
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+brews:
+- name: judge0-uploader
+  homepage: https://github.com/roeeyn/homebrew-tools
+  description: "Judge0 utility to upload files and test them directly from the terminal"
+  license: "MIT"
+  # test: |
+  #   system "#{bin}/program --version"
+  tap:
+    owner: roeeyn
+    name: homebrew-tools
